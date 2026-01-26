@@ -133,6 +133,23 @@
       "priority": 8,
       "passes": true,
       "notes": "Implemented multi-project management with List view, Create flow, and Delete capability. StorageService refactored to support collections."
+    },
+    {
+      "id": "US-009",
+      "title": "UI Polish & Theming",
+      "description": "As an artist, I want a premium, distraction-free interface that looks professional and allows me to focus on my artwork.",
+      "acceptanceCriteria": [
+        "Visual: Professional Dark Theme (consistent colors, typography, spacing)",
+        "Components: Style buttons, inputs, and lists to be touch-friendly and aesthetic",
+        "Typography: Use a modern font (e.g. Inter, Roboto, or System Default with better weights)",
+        "Interaction: Add press states and smooth transitions for UI elements",
+        "Modes: Clear visual distinction between Edit and Projection modes (seamless)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": "Refining the UI to match 'Premium' aesthetics as per project goals."
     }
   ]
 }
