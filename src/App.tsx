@@ -7,24 +7,44 @@ import { AlignmentWorkspace } from './components/AlignmentWorkspace';
 
 export default function App() {
   const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
+  const [isProjectionMode, setIsProjectionMode] = React.useState(false);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" />
+      <SafeAreaView style={[styles.container, isProjectionMode && styles.projectionContainer]}>
+        <StatusBar hidden={isProjectionMode} barStyle="light-content" />
         <View style={styles.content}>
-          <Text style={styles.title}>ProjectAlign</Text>
-          <Text style={styles.subtitle}>Digital Projector Assistant</Text>
+          {!isProjectionMode && (
+            <>
+              <Text style={styles.title}>ProjectAlign</Text>
+              <Text style={styles.subtitle}>Digital Projector Assistant</Text>
+            </>
+          )}
           
-          <View style={styles.workspace}>
+          <View style={[styles.workspace, isProjectionMode && styles.projectionWorkspace]}>
             {selectedImage ? (
               <>
-                <AlignmentWorkspace imageUri={selectedImage} />
+                <AlignmentWorkspace 
+                  imageUri={selectedImage} 
+                  isProjectionMode={isProjectionMode} 
+                />
+                
+                {!isProjectionMode && (
+                  <TouchableOpacity 
+                    style={styles.backButton} 
+                    onPress={() => setSelectedImage(null)}
+                  >
+                    <Text style={styles.backButtonText}>Choose Different Image</Text>
+                  </TouchableOpacity>
+                )}
+
                 <TouchableOpacity 
-                  style={styles.backButton} 
-                  onPress={() => setSelectedImage(null)}
+                  style={[styles.modeToggle, isProjectionMode && styles.modeToggleProjection]} 
+                  onPress={() => setIsProjectionMode(!isProjectionMode)}
                 >
-                  <Text style={styles.backButtonText}>Choose Different Image</Text>
+                  <Text style={styles.modeToggleText}>
+                    {isProjectionMode ? 'Exit Projection' : 'Enter Projection'}
+                  </Text>
                 </TouchableOpacity>
               </>
             ) : (
@@ -79,5 +99,38 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: theme.colors.text,
     fontSize: 12,
+  },
+  projectionContainer: {
+    backgroundColor: '#000',
+  },
+  projectionWorkspace: {
+    margin: 0,
+    borderRadius: 0,
+    backgroundColor: '#000',
+  },
+  modeToggle: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    backgroundColor: theme.colors.accent,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  modeToggleProjection: {
+    backgroundColor: 'rgba(50, 50, 50, 0.5)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderWidth: 1,
+    opacity: 0.3, // Very dimmed in projection mode
+  },
+  modeToggleText: {
+    color: theme.colors.text,
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });

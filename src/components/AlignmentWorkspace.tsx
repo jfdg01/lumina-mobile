@@ -11,9 +11,13 @@ import { theme } from '../styles/theme';
 
 interface AlignmentWorkspaceProps {
   imageUri: string | null;
+  isProjectionMode: boolean;
 }
 
-export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({ imageUri }) => {
+export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({ 
+  imageUri, 
+  isProjectionMode 
+}) => {
   // Shared values for transformations
   const translationX = useSharedValue(0);
   const translationY = useSharedValue(0);
@@ -24,12 +28,14 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({ imageUri
 
   // Gesture definitions
   const pan = Gesture.Pan()
+    .enabled(!isProjectionMode)
     .onChange((event) => {
       translationX.value += event.changeX;
       translationY.value += event.changeY;
     });
 
   const pinch = Gesture.Pinch()
+    .enabled(!isProjectionMode)
     .onUpdate((event) => {
       scale.value = savedScale.value * event.scale;
     })
@@ -38,6 +44,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({ imageUri
     });
 
   const rotate = Gesture.Rotation()
+    .enabled(!isProjectionMode)
     .onUpdate((event) => {
       rotation.value = savedRotation.value + event.rotation;
     })
@@ -81,7 +88,11 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({ imageUri
     <View style={styles.container}>
       <View style={styles.workspace}>
         <GestureDetector gesture={composed}>
-          <Animated.View style={[styles.imageContainer, animatedStyle]}>
+          <Animated.View style={[
+            styles.imageContainer, 
+            animatedStyle,
+            !isProjectionMode && styles.editIndicator
+          ]}>
             <Image 
               source={{ uri: imageUri }} 
               style={styles.image} 
@@ -91,9 +102,11 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({ imageUri
         </GestureDetector>
       </View>
 
-      <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-        <Text style={styles.resetButtonText}>Reset Transform</Text>
-      </TouchableOpacity>
+      {!isProjectionMode && (
+        <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
+          <Text style={styles.resetButtonText}>Reset Transform</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -146,5 +159,10 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  editIndicator: {
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: theme.colors.primary,
   },
 });
