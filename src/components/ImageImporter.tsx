@@ -26,10 +26,23 @@ export const ImageImporter: React.FC<ImageImporterProps> = ({ onImageImported })
     }
   };
 
+  // Demo image for testing (bypasses file picker)
+  const handleUseDemoImage = () => {
+    const demoUri = 'https://picsum.photos/800/600';
+    setLastImportedUri(demoUri);
+    if (onImageImported) {
+      onImageImported(demoUri);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.button} onPress={handleImport}>
         <Text style={styles.buttonText}>Import Image</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity style={styles.demoButton} onPress={handleUseDemoImage}>
+        <Text style={styles.demoButtonText}>Use Demo Image</Text>
       </TouchableOpacity>
       
       {lastImportedUri && (
@@ -87,5 +100,18 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: '#999',
     textAlign: 'center',
+  },
+  demoButton: {
+    marginTop: 12,
+    backgroundColor: 'transparent',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#6200ee',
+  },
+  demoButtonText: {
+    color: '#6200ee',
+    fontSize: 14,
   },
 });

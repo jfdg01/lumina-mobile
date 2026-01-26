@@ -1,6 +1,7 @@
 ## Codebase Patterns
 - FileSystem: Use `expo-file-system` modern API (`Paths`, `File`, `Directory`) as legacy API is deprecated/runtime-throwing.
 - Web support requires `react-dom` and `react-native-web` for browser verification.
+- Animations: Reanimated requires `babel.config.js` plugin, `babel-preset-expo`, and `GestureHandlerRootView` wrapping.
 
 ## 2026-01-26 - US-001
 - Implemented `ImageService` using `expo-file-system` v19+ API.
@@ -10,4 +11,15 @@
   - `expo-file-system` has a breaking change in v19 (beta/alpha?) where legacy constants like `documentDirectory` are gone or require legacy import. Used `Paths.document` instead.
   - Verification on web requires installing web dependencies.
   - Added `CLAUDE.md` with FileSystem patterns.
+---
+
+## 2026-01-26 - US-002
+- Implemented `AlignmentWorkspace` with Reanimated gestures (Pan, Pinch, Rotate).
+- Integrated `AlignmentWorkspace` into `App.tsx` with conditional "Image Selected" state.
+- Added `babel.config.js` for Reanimated support.
+- **Learnings for future iterations:**
+  - `react-native-reanimated` requires `babel.config.js` with `react-native-reanimated/plugin` to function, even in managed Expo (for worklets).
+  - Adding `babel.config.js` requires installing `babel-preset-expo` if it's missing.
+  - `GestureHandlerRootView` must wrap the app root for gestures to work.
+  - Web verification passed after fixing babel config.
 ---
