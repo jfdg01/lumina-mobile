@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback, useRef } from 'react';
-import { StyleSheet, View, Text, SafeAreaView, StatusBar, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, StatusBar, TouchableOpacity } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { theme } from './styles/theme';
@@ -119,78 +120,80 @@ export default function App() {
   }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <View style={[styles.container, isProjectionMode && styles.projectionContainer]}>
-        <StatusBar hidden={isProjectionMode} barStyle="light-content" />
-        
-        {/* Workspace is absolutely positioned to fill entire screen */}
-        {currentProject && (
-          <View style={styles.workspaceAbsolute}>
-            <AlignmentWorkspace 
-              imageUri={currentProject.imageUri} 
-              isProjectionMode={isProjectionMode}
-              initialTransform={currentProject.transform}
-              onTransformChange={handleTransformChange}
-            />
-          </View>
-        )}
-
-        {/* Dashboard / Project List / Importer - shown when no project active or creating new */}
-        {(!currentProject && !isCreatingNew) && (
-          <View style={styles.dashboardContainer}>
-             <ProjectList 
-               onSelectProject={handleSelectProject} 
-               onCreateNew={() => setIsCreatingNew(true)} 
-             />
-          </View>
-        )}
-
-        {(!currentProject && isCreatingNew) && (
-           <View style={styles.dashboardContainer}>
-             <ImageImporter onImageImported={handleImageImported} />
-             <TouchableOpacity 
-               style={styles.cancelButton} 
-               onPress={() => setIsCreatingNew(false)}
-             >
-               <Text style={styles.cancelButtonText}>Cancel</Text>
-             </TouchableOpacity>
-           </View>
-        )}
-
-        {/* Header overlay - only shown in Active Project Edit mode */}
-        {currentProject && !isProjectionMode && (
-          <SafeAreaView style={styles.headerOverlay} pointerEvents="box-none">
-            <View style={styles.headerContent}>
-              <Text style={styles.title}>ProjectAlign</Text>
-              <Text style={styles.subtitle}>{currentProject.name}</Text>
+    <SafeAreaProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <View style={[styles.container, isProjectionMode && styles.projectionContainer]}>
+          <StatusBar hidden={isProjectionMode} barStyle="light-content" />
+          
+          {/* Workspace is absolutely positioned to fill entire screen */}
+          {currentProject && (
+            <View style={styles.workspaceAbsolute}>
+              <AlignmentWorkspace 
+                imageUri={currentProject.imageUri} 
+                isProjectionMode={isProjectionMode}
+                initialTransform={currentProject.transform}
+                onTransformChange={handleTransformChange}
+              />
             </View>
-          </SafeAreaView>
-        )}
+          )}
 
-        {/* Control buttons overlay */}
-        {currentProject && (
-          <View style={styles.controlsOverlay} pointerEvents="box-none">
-            {!isProjectionMode && (
+          {/* Dashboard / Project List / Importer - shown when no project active or creating new */}
+          {(!currentProject && !isCreatingNew) && (
+            <View style={styles.dashboardContainer}>
+               <ProjectList 
+                 onSelectProject={handleSelectProject} 
+                 onCreateNew={() => setIsCreatingNew(true)} 
+               />
+            </View>
+          )}
+
+          {(!currentProject && isCreatingNew) && (
+             <View style={styles.dashboardContainer}>
+               <ImageImporter onImageImported={handleImageImported} />
+               <TouchableOpacity 
+                 style={styles.cancelButton} 
+                 onPress={() => setIsCreatingNew(false)}
+               >
+                 <Text style={styles.cancelButtonText}>Cancel</Text>
+               </TouchableOpacity>
+             </View>
+          )}
+
+          {/* Header overlay - only shown in Active Project Edit mode */}
+          {currentProject && !isProjectionMode && (
+            <SafeAreaView style={styles.headerOverlay} pointerEvents="box-none">
+              <View style={styles.headerContent}>
+                <Text style={styles.title}>ProjectAlign</Text>
+                <Text style={styles.subtitle}>{currentProject.name}</Text>
+              </View>
+            </SafeAreaView>
+          )}
+
+          {/* Control buttons overlay */}
+          {currentProject && (
+            <View style={styles.controlsOverlay} pointerEvents="box-none">
+              {!isProjectionMode && (
+                <TouchableOpacity 
+                  style={styles.backButton} 
+                  onPress={handleExitProject}
+                >
+                  <Text style={styles.backButtonText}>← Projects</Text>
+                </TouchableOpacity>
+              )}
+
               <TouchableOpacity 
-                style={styles.backButton} 
-                onPress={handleExitProject}
+                style={[styles.modeToggle, isProjectionMode && styles.modeToggleProjection]} 
+                onPress={() => setIsProjectionMode(!isProjectionMode)}
               >
-                <Text style={styles.backButtonText}>← Projects</Text>
+                <Text style={styles.modeToggleText}>
+                  {isProjectionMode ? 'Unlock for Editing' : 'Enter Projection Mode'}
+                </Text>
               </TouchableOpacity>
-            )}
-
-            <TouchableOpacity 
-              style={[styles.modeToggle, isProjectionMode && styles.modeToggleProjection]} 
-              onPress={() => setIsProjectionMode(!isProjectionMode)}
-            >
-              <Text style={styles.modeToggleText}>
-                {isProjectionMode ? 'Unlock for Editing' : 'Enter Projection Mode'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
-    </GestureHandlerRootView>
+            </View>
+          )}
+        </View>
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }
 

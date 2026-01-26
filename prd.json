@@ -150,6 +150,35 @@
       "notes": "Implemented safe launch (defaults to Projection Mode) when opening projects. Updated label to 'Unlock for Editing' for clarity. Verified in browser."
     },
     {
+      "id": "US-012",
+      "title": "Migrate to Safe Area Context",
+      "description": "As a developer, I want to use `react-native-safe-area-context` instead of `SafeAreaView` to ensure consistent and correct padding on all devices (especially phones with modern notches/dynamic islands).",
+      "acceptanceCriteria": [
+        "Refactor: Replace React Native `SafeAreaView` with `SafeAreaProvider` and `SafeAreaView` (or `useSafeAreaInsets`) from `react-native-safe-area-context`",
+        "Visual: Verify content does not clip under status bar or home indicator",
+        "Visual: Ensure immersive mode (Projection) handles insets correctly (e.g. status bar hidden but safe areas respected if needed)",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "Replacing legacy SafeAreaView with modern standard."
+    },
+    {
+      "id": "US-013",
+      "title": "Safe Project Navigation",
+      "description": "As an artist, I want to switch projects safely without entering Edit Mode, preventing accidental exits during projection.",
+      "acceptanceCriteria": [
+        "Feature: Separate 'Exit Project' navigation from 'Edit Mode' controls",
+        "Interaction: Implement a safety trigger (e.g., long press or specific corner area) to show navigation controls in Projection Mode",
+        "Efficiency: Allow returning to Project List without unlocking the image for editing",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": "Ensuring project switching doesn't require unlocking the canvas."
+    },
+    {
       "id": "US-010",
       "title": "Undo/Redo (Ctrl+Z)",
       "description": "As an artist, I want to undo my last gesture if I make a mistake while aligning.",
@@ -161,7 +190,7 @@
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
-      "priority": 10,
+      "priority": 12,
       "passes": false,
       "notes": "Implementing simple command pattern or history stack for transforms."
     },
@@ -178,23 +207,9 @@
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
-      "priority": 11,
+      "priority": 13,
       "passes": false,
       "notes": "Refining the UI to match 'Premium' aesthetics as per project goals."
-    },
-    {
-      "id": "US-012",
-      "title": "Migrate to Safe Area Context",
-      "description": "As a developer, I want to use `react-native-safe-area-context` instead of `SafeAreaView` to ensure consistent and correct padding on all devices (especially phones with modern notches/dynamic islands).",
-      "acceptanceCriteria": [
-        "Refactor: Replace React Native `SafeAreaView` with `SafeAreaProvider` and `SafeAreaView` (or `useSafeAreaInsets`) from `react-native-safe-area-context`",
-        "Visual: Verify content does not clip under status bar or home indicator",
-        "Visual: Ensure immersive mode (Projection) handles insets correctly (e.g. status bar hidden but safe areas respected if needed)",
-        "Typecheck passes"
-      ],
-      "priority": 12,
-      "passes": false,
-      "notes": "Replacing legacy SafeAreaView with modern standard."
     }
   ]
 }
