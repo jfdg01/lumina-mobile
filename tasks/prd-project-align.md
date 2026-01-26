@@ -2,7 +2,7 @@
 
 ## 1. Introduction/Overview
 
-ProjectAlign is a specialized React Native mobile utility designed for traditional artists (muralists, realist painters) who use digital projectors to transfer sketches onto canvases. The app allows users to import reference images, manipulate them (scale, rotate, translate) to match a physical canvas, and strictly "lock" the projection. 
+ProjectAlign is a specialized React Native mobile utility designed for traditional artists (muralists, realist painters) who use digital projectors to transfer sketches onto canvases. The app allows users to import reference images, manipulate them (scale, rotate, translate) to match a physical canvas, and strictly "lock" the projection.
 
 Key differentiator: ProjectAlign saves exact geometric coordinates and handles local image persistence, ensuring that artists can resume work across multiple sessions with zero re-alignment effort.
 
@@ -16,27 +16,34 @@ Key differentiator: ProjectAlign saves exact geometric coordinates and handles l
 ## 3. User Stories
 
 ### US-001: Create Project Image Import
+
 **Description:** As an artist, I want to import a reference image so that I can use it for projection, knowing it won't be lost if I clean my gallery.
 
 **Acceptance Criteria:**
+
+- [x] Initialize project scaffolding.
 - [ ] User can pick an image from the device gallery.
 - [ ] App automatically copies the selected image to the app's internal sandbox storage (`DocumentDirectory`).
 - [ ] A new Project record is created linking to the sandboxed file.
 - [ ] Typecheck/lint passes.
 
 ### US-002: Alignment Workspace (Edit Mode)
+
 **Description:** As an artist, I want to scale, rotate, and move the image to match my canvas exactly.
 
 **Acceptance Criteria:**
+
 - [ ] Support simultaneous Pan, Pinch (Scale), and Rotation gestures.
 - [ ] UI visual indicator clearly shows "EDIT MODE" (e.g., unlocked padlock icon or yellow border).
 - [ ] "Reset" button restores image to default center/scale.
 - [ ] Verify in browser/simulator that gestures are smooth (60fps).
 
 ### US-003: Projection Mode (Lock)
+
 **Description:** As an artist, I want to lock the screen so that touching the phone doesn't ruin my alignment.
 
 **Acceptance Criteria:**
+
 - [ ] Toggle switch or button to enter "Projection Mode".
 - [ ] In Projection Mode: All transformation gestures are disabled.
 - [ ] UI overlays (buttons, headers) fade out or minimize to reduce light pollution.
@@ -44,9 +51,11 @@ Key differentiator: ProjectAlign saves exact geometric coordinates and handles l
 - [ ] Typecheck/lint passes.
 
 ### US-004: Persistence & Resume
+
 **Description:** As an artist, I want my exact alignment to be saved so I can resume painting tomorrow without realigning the projector.
 
 **Acceptance Criteria:**
+
 - [ ] App auto-saves `translateX`, `translateY`, `scale`, and `rotation` values.
 - [ ] App auto-saves the active state/project ID.
 - [ ] Relaunching the app loads the last active project with its exact transform values applied immediately.
@@ -55,16 +64,19 @@ Key differentiator: ProjectAlign saves exact geometric coordinates and handles l
 ## 4. Functional Requirements
 
 ### 4.1 Data Management
+
 - **FR-1:** System must copy imported images to `FileSystem.documentDirectory` using a UUID filename.
 - **FR-2:** Data schema must support 1 Project = 1 Image + 1 Transform Set.
 - **FR-3:** Storage engine: `AsyncStorage` for metadata, FileSystem for assets.
 
 ### 4.2 Editing Capabilities
+
 - **FR-4:** Translation: Infinite canvas panning.
 - **FR-5:** Scaling: Min scale 0.01x, Max scale 50x.
 - **FR-6:** Rotation: 360-degree rotation support.
 
 ### 4.3 Interface States
+
 - **FR-7:** **Edit State:** Full UI visibility, gestures active.
 - **FR-8:** **view State:** Minimal/No UI, black background, gestures ignored.
 

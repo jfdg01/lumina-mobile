@@ -8,7 +8,7 @@
       "title": "Image Import & Sandbox Storage",
       "description": "As an artist, I want to select an image and have it saved to the app's internal storage.",
       "acceptanceCriteria": [
-        "Initialize project scaffolding if missing",
+        "Initialize project scaffolding: DONE",
         "Integration of expo-image-picker for gallery access",
         "Integration of expo-file-system for local storage",
         "Feature: Select image and copy to DocumentDirectory with unique ID",
@@ -17,8 +17,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 1,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented with expo-file-system v19 new API. Verified in browser."
     },
     {
       "id": "US-002",
