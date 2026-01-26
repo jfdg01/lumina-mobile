@@ -133,8 +133,9 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.workspace}>
-        <GestureDetector gesture={composed}>
+      {/* GestureDetector now wraps the entire workspace for global gesture capture */}
+      <GestureDetector gesture={composed}>
+        <Animated.View style={styles.workspace}>
           <Animated.View style={[
             styles.imageContainer, 
             animatedStyle,
@@ -146,8 +147,8 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
               resizeMode="contain" 
             />
           </Animated.View>
-        </GestureDetector>
-      </View>
+        </Animated.View>
+      </GestureDetector>
 
       {!isProjectionMode && (
         <TouchableOpacity style={styles.resetButton} onPress={handleReset}>

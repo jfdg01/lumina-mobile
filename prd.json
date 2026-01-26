@@ -83,6 +83,56 @@
       "priority": 5,
       "passes": true,
       "notes": "Implemented expo-keep-awake with activateKeepAwakeAsync/deactivateKeepAwake. Screen stays awake in Projection Mode, allows sleep in Edit Mode. Dark background enforced. Typecheck passes."
+    },
+    {
+      "id": "US-006",
+      "title": "Global Gesture Area",
+      "description": "As an artist, I want to pinch/rotate anywhere on the screen, not just on the image bounds, for easier manipulation.",
+      "acceptanceCriteria": [
+        "Feature: Pinch gesture works anywhere in the workspace, not just on image",
+        "Feature: Rotation gesture works anywhere in the workspace",
+        "Feature: Pan gesture can optionally require starting on image or work globally",
+        "Gestures should feel natural and responsive regardless of finger position",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Consistent Image Position Between Modes",
+      "description": "As an artist, I need the image position to remain exactly the same when switching between Edit and Projection modes so my alignment is accurate.",
+      "acceptanceCriteria": [
+        "Bug: Image shifts when switching modes due to header show/hide",
+        "Fix: Image position must be pixel-perfect between Edit and Projection modes",
+        "Feature: Workspace layout should not depend on header visibility",
+        "Consider: Use absolute positioning or fullscreen workspace in both modes",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Multi-Project Management",
+      "description": "As an artist, I want to save multiple projects (each with their own image and alignment) and easily switch between them.",
+      "acceptanceCriteria": [
+        "Feature: Save current project with name/identifier",
+        "Feature: List all saved projects",
+        "Feature: Load a specific project from the list",
+        "Feature: Delete a project from the list",
+        "Feature: Each project stores: image URI, transform values, name, last modified",
+        "UI: Project selector/picker interface",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
     }
   ]
 }
