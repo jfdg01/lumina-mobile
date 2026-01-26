@@ -1,6 +1,7 @@
 import React, { useEffect, useCallback, useRef } from 'react';
 import { StyleSheet, View, Text, SafeAreaView, StatusBar, TouchableOpacity } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { theme } from './styles/theme';
 import { ImageImporter } from './components/ImageImporter';
 import { AlignmentWorkspace } from './components/AlignmentWorkspace';
@@ -78,6 +79,24 @@ export default function App() {
       }
     };
   }, []);
+
+  // Manage screen wake lock based on projection mode
+  useEffect(() => {
+    if (isProjectionMode) {
+      // Keep screen awake during projection
+      activateKeepAwakeAsync().catch((error) => {
+        console.warn('Failed to activate keep awake:', error);
+      });
+    } else {
+      // Allow screen to sleep in edit mode
+      deactivateKeepAwake();
+    }
+
+    // Cleanup: ensure wake lock is deactivated when component unmounts
+    return () => {
+      deactivateKeepAwake();
+    };
+  }, [isProjectionMode]);
 
   if (isLoading) {
     return (
