@@ -8,7 +8,8 @@
 - Global Gestures: Wrap the parent container (not the target element) with `GestureDetector` to capture gestures anywhere on screen.
 - Layout Stability: Use `absolute` positioning for workspaces that must remain static while UI overlays toggle on/off. Avoid flex-based layout shifts.
 - Storage Structure: For simple lists, use a "Collection" key (JSON object map) + "Current ID" key pattern. Avoid separate keys per item unless necessary for performance.
-
+- App Structure: \`src\` is the root for source. \`global.css\` in \`src\`. \`@\` alias maps to \`./src\`.
+- Components: All components in \`src/components\`. Gluestack UI in \`src/components/ui\`.
 ## 2026-01-27 01:00 - US-001
 - Deprecated `src/styles/theme.ts`.
 - Restored missing `AlignmentWorkspace.tsx` and `ImageImporter.tsx` which caused build failures.
@@ -19,5 +20,3 @@
 - Always check `git log` if files are missing unexpectedly.
 - `src/components/ui` contains the Gluestack components.
 ---
-- App Structure: `src` is the root for source. `global.css` in `src`. `@` alias maps to `./src`.
-- Components: All components in `src/components`. Gluestack UI in `src/components/ui`.
