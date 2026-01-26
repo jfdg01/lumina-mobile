@@ -5,6 +5,7 @@
 - Persistence: Use `@react-native-async-storage/async-storage` for simple key-value storage (works on web and native).
 - Reanimated worklets: Use `runOnJS(fn)()` to call JS functions from gesture handler callbacks.
 - Wake Lock: Use `expo-keep-awake` with `activateKeepAwakeAsync`/`deactivateKeepAwake`. Always cleanup on unmount.
+- Global Gestures: Wrap the parent container (not the target element) with `GestureDetector` to capture gestures anywhere on screen.
 
 ## 2026-01-26 - US-001
 - Implemented `ImageService` using `expo-file-system` v19+ API.
@@ -68,4 +69,16 @@
   - Always cleanup wake lock on unmount to prevent orphaned locks.
   - Wake lock doesn't have a visible effect in web browsers (platform limitation), but works on native.
   - Dark background was already enforced from US-003 implementation (Projection Mode sets `backgroundColor: '#000'`).
+---
+
+## 2026-01-26 - US-006
+- Restructured `AlignmentWorkspace` to wrap entire workspace with `GestureDetector`.
+- Previously, gestures only worked when touching the image container directly.
+- Now pinch, rotation, and pan gestures work anywhere on the screen.
+- The `Animated.View` for workspace captures all gesture input, while transforms only apply to the image.
+- Files changed: `src/components/AlignmentWorkspace.tsx`
+- **Learnings for future iterations:**
+  - To make gestures work globally (full screen), wrap the parent container with `GestureDetector`, not just the target element.
+  - The animated transform can still be applied to a child element while capturing gestures on a parent.
+  - Multi-touch gestures (pinch/rotate) require actual touch hardware to test; browser verification confirms UI stability only.
 ---

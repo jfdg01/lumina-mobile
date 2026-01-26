@@ -97,8 +97,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 6,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Moved GestureDetector to wrap entire workspace. Pinch, rotation, and pan gestures now work anywhere on screen. Verified in browser."
     },
     {
       "id": "US-007",
