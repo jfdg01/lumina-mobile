@@ -191,8 +191,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 12,
-      "passes": false,
-      "notes": "Implementing simple command pattern or history stack for transforms."
+      "passes": true,
+      "notes": "Implemented history manager (undo/redo stacks) in App.tsx. Verified via browser automation."
     },
     {
       "id": "US-011",

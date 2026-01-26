@@ -36,16 +36,15 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
   const rotation = useSharedValue(initialTransform?.rotation ?? 0);
   const savedRotation = useSharedValue(initialTransform?.rotation ?? 0);
 
-  // Update shared values when initialTransform changes (e.g., on load)
+  // Update shared values when initialTransform changes (e.g., on load or undo/redo)
   useEffect(() => {
-    if (initialTransform && !isInitialized.current) {
+    if (initialTransform) {
       translationX.value = initialTransform.translationX;
       translationY.value = initialTransform.translationY;
       scale.value = initialTransform.scale;
       savedScale.value = initialTransform.scale;
       rotation.value = initialTransform.rotation;
       savedRotation.value = initialTransform.rotation;
-      isInitialized.current = true;
     }
   }, [initialTransform]);
 

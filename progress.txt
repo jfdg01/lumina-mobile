@@ -156,3 +156,14 @@
   - `Gesture.LongPress()` integrates seamlessly with `Gesture.Simultaneous()` but requires `runOnJS` if it modifies React state.
   - UI overlays in projection apps should be "dimmed and hidden" by default but "discoverable" via specific interactions.
 ---
+
+## 2026-01-26 - US-010
+- Implemented Undo/Redo functionality.
+- Added history stacks (undo/redo) to `App.tsx`.
+- Updated `AlignmentWorkspace.tsx` to allow parent updates to shared values.
+- Added Undo/Redo buttons to the Edit Mode UI.
+- **Learnings for future iterations:**
+  - Reanimated shared values must be updated in a `useEffect` if the source of truth moves to a parent component (controlled pattern).
+  - Use `setUndoStack(prev => [...prev, currentProject.transform])` to ensure history is captured before the state update.
+  - History is currently in-memory; consider persisting it if UX requirements demand recovery after restart.
+---

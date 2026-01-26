@@ -22,6 +22,12 @@ export default function App() {
   const [isProjectionMode, setIsProjectionMode] = React.useState(false);
   const [isCreatingNew, setIsCreatingNew] = React.useState(false);
   const [showSecondaryControls, setShowSecondaryControls] = React.useState(false);
+  
+  // Undo/Redo History
+  const [undoStack, setUndoStack] = React.useState<TransformState[]>([]);
+  const [redoStack, setRedoStack] = React.useState<TransformState[]>([]);
+  const MAX_HISTORY = 20;
+
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load saved project on app launch
@@ -56,6 +62,17 @@ export default function App() {
   const handleTransformChange = useCallback((transform: TransformState) => {
     if (!currentProject) return;
 
+    // Push previous state to undo stack
+    setUndoStack(prev => {
+      const newStack = [...prev, currentProject.transform];
+      if (newStack.length > MAX_HISTORY) {
+        return newStack.slice(newStack.length - MAX_HISTORY);
+      }
+      return newStack;
+    });
+    // Clear redo stack on new change
+    setRedoStack([]);
+
     // Update local state
     const updatedProject = {
       ...currentProject,
@@ -72,6 +89,43 @@ export default function App() {
       await saveProject(updatedProject);
     }, 500);
   }, [currentProject]);
+
+  // Undo / Redo Actions
+  const handleUndo = useCallback(() => {
+    if (undoStack.length === 0 || !currentProject) return;
+
+    const previousTransform = undoStack[undoStack.length - 1];
+    const newUndoStack = undoStack.slice(0, -1);
+
+    setRedoStack(prev => [...prev, currentProject.transform]);
+    setUndoStack(newUndoStack);
+
+    const updatedProject = {
+      ...currentProject,
+      transform: previousTransform,
+      lastModified: Date.now(),
+    };
+    setCurrentProject(updatedProject);
+    saveProject(updatedProject);
+  }, [undoStack, currentProject]);
+
+  const handleRedo = useCallback(() => {
+    if (redoStack.length === 0 || !currentProject) return;
+
+    const nextTransform = redoStack[redoStack.length - 1];
+    const newRedoStack = redoStack.slice(0, -1);
+
+    setUndoStack(prev => [...prev, currentProject.transform]);
+    setRedoStack(newRedoStack);
+
+    const updatedProject = {
+      ...currentProject,
+      transform: nextTransform,
+      lastModified: Date.now(),
+    };
+    setCurrentProject(updatedProject);
+    saveProject(updatedProject);
+  }, [redoStack, currentProject]);
 
   // Handle going back to project list
   const handleExitProject = useCallback(async () => {
@@ -183,6 +237,26 @@ export default function App() {
                 </TouchableOpacity>
               )}
 
+              {/* Undo/Redo Buttons */}
+              {currentProject && !isProjectionMode && (
+                <View style={styles.undoRedoContainer}>
+                  <TouchableOpacity 
+                    style={[styles.historyButton, undoStack.length === 0 && styles.disabledButton]} 
+                    onPress={handleUndo}
+                    disabled={undoStack.length === 0}
+                  >
+                    <Text style={styles.historyButtonText}>Undo</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[styles.historyButton, redoStack.length === 0 && styles.disabledButton]} 
+                    onPress={handleRedo}
+                    disabled={redoStack.length === 0}
+                  >
+                    <Text style={styles.historyButtonText}>Redo</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+
               {isProjectionMode && showSecondaryControls && (
                 <TouchableOpacity 
                   style={styles.hideControlsButton} 
@@ -266,6 +340,29 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: theme.colors.text,
     fontSize: 12,
+  },
+  undoRedoContainer: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    flexDirection: 'row',
+    gap: 10,
+  },
+  historyButton: {
+    backgroundColor: 'rgba(50, 50, 50, 0.8)',
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  historyButtonText: {
+    color: theme.colors.text,
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  disabledButton: {
+    opacity: 0.3,
   },
   projectionContainer: {
     backgroundColor: '#000',
