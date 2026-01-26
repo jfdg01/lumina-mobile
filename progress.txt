@@ -173,10 +173,11 @@
 - Refactored `App.tsx` to include Reanimated fade transitions for overlays.
 - Standardized UI elements (buttons, project items) using theme tokens.
 - Added glow effects and high-contrast surfaces for better projection visibility.
+- **Refinement**: Removed persistent "Unlock" button from Projection Mode; revealed via 2-second long-press.
 - Files changed: `src/styles/theme.ts`, `src/App.tsx`, `src/components/AlignmentWorkspace.tsx`, `src/components/ProjectList.tsx`, `src/components/ImageImporter.tsx`.
 - **Learnings for future iterations:**
   - Modern "Premium" aesthetics in React Native can be achieved with consistent theme tokens and subtle shadows/glows.
   - Using `rgba` for overlays (glassmorphism) improves depth and maintains context.
-  - Reanimated `useSharedValue` and `withTiming` provide a declarative way to handle UI state transitions (like showing/hiding headers).
-  - Explicit `textTransform: 'uppercase'` and `letterSpacing` elevate the technical/professional feel of the UI.
+  - Reanimated `useSharedValue` and `withTiming` provide a declarative way to handle UI state transitions.
+  - Safest UI for projection apps often requires explicit multi-second holds to avoid accidental changes.
 ---

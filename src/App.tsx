@@ -271,21 +271,22 @@ export default function App() {
                 </TouchableOpacity>
               )}
 
-              <TouchableOpacity 
-                style={[
-                  styles.modeToggle, 
-                  isProjectionMode && styles.modeToggleProjection,
-                  isProjectionMode && !showSecondaryControls && { opacity: 0.1 }
-                ]} 
-                onPress={() => {
-                  setIsProjectionMode(!isProjectionMode);
-                  setShowSecondaryControls(false);
-                }}
-              >
-                <Text style={styles.modeToggleText}>
-                  {isProjectionMode ? (showSecondaryControls ? 'Lock Controls' : 'Unlock') : 'Project'}
-                </Text>
-              </TouchableOpacity>
+              {(!isProjectionMode || showSecondaryControls) && (
+                <TouchableOpacity 
+                  style={[
+                    styles.modeToggle, 
+                    isProjectionMode && styles.modeToggleProjection
+                  ]} 
+                  onPress={() => {
+                    setIsProjectionMode(!isProjectionMode);
+                    setShowSecondaryControls(false);
+                  }}
+                >
+                  <Text style={styles.modeToggleText}>
+                    {isProjectionMode ? (showSecondaryControls ? 'Lock Controls' : 'Unlock') : 'Project'}
+                  </Text>
+                </TouchableOpacity>
+              )}
             </Animated.View>
           )}
         </View>

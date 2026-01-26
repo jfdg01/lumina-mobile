@@ -92,7 +92,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
     });
 
   const longPress = Gesture.LongPress()
-    .minDuration(1000)
+    .minDuration(2000)
     .onStart(() => {
       if (onLongPress) {
         runOnJS(onLongPress)();
