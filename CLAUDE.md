@@ -14,6 +14,7 @@
   - Wrap root component in `GestureHandlerRootView`
 - **Layout**:
   - Use `position: 'absolute'` for workspaces/canvases that must remain static while UI overlays toggle. flow-based layouts (flex) can cause unwanted shifts.
+  - Avoid toggling `borderWidth` or `padding` for selection states; use transparent colors or overlays to maintain box-model geometry.
 - **Storage**:
   - Use "Collection" key (map) + "Current ID" key for simple multi-item state.
 

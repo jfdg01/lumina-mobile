@@ -187,6 +187,8 @@ const styles = StyleSheet.create({
     height: 300,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   image: {
     width: '100%',
@@ -209,7 +211,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   editIndicator: {
-    borderWidth: 1,
     borderStyle: 'dashed',
     borderColor: theme.colors.primary,
   },

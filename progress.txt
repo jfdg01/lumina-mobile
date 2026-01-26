@@ -111,3 +111,15 @@
   - For simple local-first apps, storing the entire "db" in one AsyncStorage key is fine and simplifies "GetAll" operations.
   - State machine in `App.tsx` (CurrentProject? Creating?) effectively manages the navigation without a full router library (react-navigation currently not needed, but might be if it grows).
 ---
+
+## 2026-01-26 - US-007
+- Verified US-007 (Consistent Image Position).
+- Fixed a 2px scale shift where removing the 1px border in Projection Mode caused the image to grow.
+- Fix: `editIndicator` now uses `borderColor: 'transparent'` vs `theme.colors.primary` instead of toggling `borderWidth`.
+- Browser subagent verified 0-pixel shift in image position and size between modes.
+- Files changed: `src/components/AlignmentWorkspace.tsx`
+- **Learnings for future iterations:**
+  - Toggling `borderWidth` (e.g. 1px to 0px) changes the content box size (in standard box model) or container size, which can shift centered content.
+  - To implement "Edit/Preview" modes without layout shifts, keep the layout geometry (borders, padding, margins) identical and only toggle visibility (opacity, color).
+  - Browser verification is critical for pixel-perfect requirements; "looks good" isn't enough.
+---
