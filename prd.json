@@ -136,6 +136,37 @@
     },
     {
       "id": "US-009",
+      "title": "Safe Launch Mode (Default to Projection)",
+      "description": "As an artist, when I open a project, I want it to start in Projection Mode (safe/locked) so I don't accidentally move my aligned image.",
+      "acceptanceCriteria": [
+        "Feature: When selecting a project, immediately launch into Projection Mode (locked gestures)",
+        "UI: Explicit 'Unlock for Editing' or 'Enter Edit Mode' flow",
+        "Safety: Prevent accidental gestures on load",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": "Changing default entry state to locked/projection mode."
+    },
+    {
+      "id": "US-010",
+      "title": "Undo/Redo (Ctrl+Z)",
+      "description": "As an artist, I want to undo my last gesture if I make a mistake while aligning.",
+      "acceptanceCriteria": [
+        "Feature: Maintain history of TransformState changes (limit 10-20 steps)",
+        "UI: Undo button visible in Edit Mode (disabled if no history)",
+        "UI: Optional Redo button",
+        "Interaction: Trigger undo on button press",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "Implementing simple command pattern or history stack for transforms."
+    },
+    {
+      "id": "US-011",
       "title": "UI Polish & Theming",
       "description": "As an artist, I want a premium, distraction-free interface that looks professional and allows me to focus on my artwork.",
       "acceptanceCriteria": [
@@ -147,7 +178,7 @@
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
-      "priority": 9,
+      "priority": 11,
       "passes": false,
       "notes": "Refining the UI to match 'Premium' aesthetics as per project goals."
     }
