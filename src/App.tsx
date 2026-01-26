@@ -1,13 +1,95 @@
-import React from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import { StyleSheet, View, Text, SafeAreaView, StatusBar, TouchableOpacity } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { theme } from './styles/theme';
 import { ImageImporter } from './components/ImageImporter';
 import { AlignmentWorkspace } from './components/AlignmentWorkspace';
+import { 
+  loadProjectState, 
+  saveProjectState, 
+  createNewProject,
+  clearProjectState,
+  ProjectState,
+  TransformState
+} from './services/StorageService';
 
 export default function App() {
-  const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
+  const [currentProject, setCurrentProject] = React.useState<ProjectState | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
   const [isProjectionMode, setIsProjectionMode] = React.useState(false);
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Load saved project on app launch
+  useEffect(() => {
+    const loadSavedProject = async () => {
+      try {
+        const savedProject = await loadProjectState();
+        if (savedProject) {
+          setCurrentProject(savedProject);
+        }
+      } catch (error) {
+        console.error('Failed to load saved project:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadSavedProject();
+  }, []);
+
+  // Handle new image import - create new project
+  const handleImageImported = useCallback(async (imageUri: string) => {
+    const newProject = createNewProject(imageUri);
+    setCurrentProject(newProject);
+    await saveProjectState(newProject);
+  }, []);
+
+  // Handle transform changes with debounced save
+  const handleTransformChange = useCallback((transform: TransformState) => {
+    if (!currentProject) return;
+
+    // Update local state
+    const updatedProject = {
+      ...currentProject,
+      transform,
+      lastModified: Date.now(),
+    };
+    setCurrentProject(updatedProject);
+
+    // Debounced save to avoid frequent storage writes
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    saveTimeoutRef.current = setTimeout(async () => {
+      await saveProjectState(updatedProject);
+    }, 500);
+  }, [currentProject]);
+
+  // Handle selecting a different image / clearing project
+  const handleClearProject = useCallback(async () => {
+    setCurrentProject(null);
+    await clearProjectState();
+  }, []);
+
+  // Cleanup save timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  if (isLoading) {
+    return (
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.content}>
+            <Text style={styles.title}>Loading...</Text>
+          </View>
+        </SafeAreaView>
+      </GestureHandlerRootView>
+    );
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -22,17 +104,19 @@ export default function App() {
           )}
           
           <View style={[styles.workspace, isProjectionMode && styles.projectionWorkspace]}>
-            {selectedImage ? (
+            {currentProject ? (
               <>
                 <AlignmentWorkspace 
-                  imageUri={selectedImage} 
-                  isProjectionMode={isProjectionMode} 
+                  imageUri={currentProject.imageUri} 
+                  isProjectionMode={isProjectionMode}
+                  initialTransform={currentProject.transform}
+                  onTransformChange={handleTransformChange}
                 />
                 
                 {!isProjectionMode && (
                   <TouchableOpacity 
                     style={styles.backButton} 
-                    onPress={() => setSelectedImage(null)}
+                    onPress={handleClearProject}
                   >
                     <Text style={styles.backButtonText}>Choose Different Image</Text>
                   </TouchableOpacity>
@@ -48,7 +132,7 @@ export default function App() {
                 </TouchableOpacity>
               </>
             ) : (
-              <ImageImporter onImageImported={setSelectedImage} />
+              <ImageImporter onImageImported={handleImageImported} />
             )}
           </View>
         </View>

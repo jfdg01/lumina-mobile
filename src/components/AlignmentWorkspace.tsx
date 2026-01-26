@@ -1,30 +1,63 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Image, Text, TouchableOpacity } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
   withSpring, 
-  withTiming 
+  withTiming,
+  runOnJS
 } from 'react-native-reanimated';
 import { theme } from '../styles/theme';
+import { TransformState } from '../services/StorageService';
 
 interface AlignmentWorkspaceProps {
   imageUri: string | null;
   isProjectionMode: boolean;
+  initialTransform?: TransformState;
+  onTransformChange?: (transform: TransformState) => void;
 }
 
 export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({ 
   imageUri, 
-  isProjectionMode 
+  isProjectionMode,
+  initialTransform,
+  onTransformChange
 }) => {
+  const isInitialized = useRef(false);
+
   // Shared values for transformations
-  const translationX = useSharedValue(0);
-  const translationY = useSharedValue(0);
-  const scale = useSharedValue(1);
-  const savedScale = useSharedValue(1);
-  const rotation = useSharedValue(0);
-  const savedRotation = useSharedValue(0);
+  const translationX = useSharedValue(initialTransform?.translationX ?? 0);
+  const translationY = useSharedValue(initialTransform?.translationY ?? 0);
+  const scale = useSharedValue(initialTransform?.scale ?? 1);
+  const savedScale = useSharedValue(initialTransform?.scale ?? 1);
+  const rotation = useSharedValue(initialTransform?.rotation ?? 0);
+  const savedRotation = useSharedValue(initialTransform?.rotation ?? 0);
+
+  // Update shared values when initialTransform changes (e.g., on load)
+  useEffect(() => {
+    if (initialTransform && !isInitialized.current) {
+      translationX.value = initialTransform.translationX;
+      translationY.value = initialTransform.translationY;
+      scale.value = initialTransform.scale;
+      savedScale.value = initialTransform.scale;
+      rotation.value = initialTransform.rotation;
+      savedRotation.value = initialTransform.rotation;
+      isInitialized.current = true;
+    }
+  }, [initialTransform]);
+
+  // Helper to notify parent of transform changes
+  const notifyTransformChange = () => {
+    if (onTransformChange) {
+      onTransformChange({
+        translationX: translationX.value,
+        translationY: translationY.value,
+        scale: scale.value,
+        rotation: rotation.value,
+      });
+    }
+  };
 
   // Gesture definitions
   const pan = Gesture.Pan()
@@ -32,6 +65,9 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
     .onChange((event) => {
       translationX.value += event.changeX;
       translationY.value += event.changeY;
+    })
+    .onEnd(() => {
+      runOnJS(notifyTransformChange)();
     });
 
   const pinch = Gesture.Pinch()
@@ -41,6 +77,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
     })
     .onEnd(() => {
       savedScale.value = scale.value;
+      runOnJS(notifyTransformChange)();
     });
 
   const rotate = Gesture.Rotation()
@@ -50,6 +87,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
     })
     .onEnd(() => {
       savedRotation.value = rotation.value;
+      runOnJS(notifyTransformChange)();
     });
 
   // Compose gestures for simultaneous execution
@@ -74,6 +112,15 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
     savedScale.value = 1;
     rotation.value = withSpring(0);
     savedRotation.value = 0;
+    // Notify after reset with default values
+    if (onTransformChange) {
+      onTransformChange({
+        translationX: 0,
+        translationY: 0,
+        scale: 1,
+        rotation: 0,
+      });
+    }
   };
 
   if (!imageUri) {
