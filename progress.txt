@@ -4,6 +4,7 @@
 - Animations: Reanimated requires `babel.config.js` plugin, `babel-preset-expo`, and `GestureHandlerRootView` wrapping.
 - Persistence: Use `@react-native-async-storage/async-storage` for simple key-value storage (works on web and native).
 - Reanimated worklets: Use `runOnJS(fn)()` to call JS functions from gesture handler callbacks.
+- Wake Lock: Use `expo-keep-awake` with `activateKeepAwakeAsync`/`deactivateKeepAwake`. Always cleanup on unmount.
 
 ## 2026-01-26 - US-001
 - Implemented `ImageService` using `expo-file-system` v19+ API.
@@ -53,4 +54,18 @@
   - `runOnJS()` is required to call JS functions from Reanimated gesture handlers (worklet context).
   - Project state includes: `id`, `imageUri`, `transform` (x, y, scale, rotation), `lastModified` timestamp.
   - Loading state (`isLoading`) prevents UI flash when restoring saved project.
+---
+
+## 2026-01-26 - US-005
+- Installed `expo-keep-awake` package.
+- Added `activateKeepAwakeAsync` and `deactivateKeepAwake` imports to `App.tsx`.
+- Created useEffect that manages wake lock based on `isProjectionMode` state.
+- Wake lock activates when entering Projection Mode; deactivates in Edit Mode.
+- Cleanup ensures wake lock is deactivated on component unmount.
+- Files changed: `src/App.tsx`
+- **Learnings for future iterations:**
+  - `expo-keep-awake` is async on activation (`activateKeepAwakeAsync`) but sync on deactivation (`deactivateKeepAwake`).
+  - Always cleanup wake lock on unmount to prevent orphaned locks.
+  - Wake lock doesn't have a visible effect in web browsers (platform limitation), but works on native.
+  - Dark background was already enforced from US-003 implementation (Projection Mode sets `backgroundColor: '#000'`).
 ---

@@ -81,8 +81,8 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented expo-keep-awake with activateKeepAwakeAsync/deactivateKeepAwake. Screen stays awake in Projection Mode, allows sleep in Edit Mode. Dark background enforced. Typecheck passes."
     }
   ]
 }
