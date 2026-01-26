@@ -1,16 +1,23 @@
 import React, { useEffect, useCallback, useRef } from 'react';
-import { StyleSheet, View, Text, StatusBar, TouchableOpacity } from 'react-native';
+import { StatusBar } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import Animated, { useAnimatedStyle, withTiming, useSharedValue } from 'react-native-reanimated';
-import { theme } from './styles/theme';
+// import { theme } from './styles/theme'; // Removed as unused in App.tsx
 import { ImageImporter } from './components/ImageImporter';
 import { AlignmentWorkspace } from './components/AlignmentWorkspace';
 import { useProjectStore } from './store/useProjectStore';
 import { ProjectList } from './components/ProjectList';
 
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
+import { Box } from '@/components/ui/box';
+import { Center } from '@/components/ui/center';
+import { VStack } from '@/components/ui/vstack';
+import { HStack } from '@/components/ui/hstack';
+import { Heading } from '@/components/ui/heading';
+import { Text } from '@/components/ui/text';
+import { Button, ButtonText } from '@/components/ui/button';
 import '@/global.css';
 
 export default function App() {
@@ -92,21 +99,21 @@ export default function App() {
 
   if (isLoading) {
     return (
-      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={styles.loadingText}>Initializing...</Text>
-      </View>
+      <Box className="flex-1 justify-center items-center bg-background-0">
+        <Text className="text-primary-500 text-lg font-semibold tracking-wider">Initializing...</Text>
+      </Box>
     );
   }
 
   return (
     <GluestackUIProvider mode="dark">
       <SafeAreaProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={[styles.container, isProjectionMode && styles.projectionContainer]}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <Box className={`flex-1 ${isProjectionMode ? 'bg-black' : 'bg-background-0'}`}>
           <StatusBar hidden={isProjectionMode} barStyle="light-content" />
           
           {currentProject && (
-            <View style={styles.workspaceAbsolute}>
+            <Box className="absolute inset-0 bg-black">
               <AlignmentWorkspace 
                 imageUri={currentProject.imageUri} 
                 isProjectionMode={isProjectionMode}
@@ -114,252 +121,114 @@ export default function App() {
                 onTransformChange={updateTransform}
                 onLongPress={() => isProjectionMode && setShowSecondaryControls(true)}
               />
-            </View>
+            </Box>
           )}
 
           {(!currentProject && !isCreatingNew) && (
-            <View style={styles.dashboardContainer}>
+            <Box className="flex-1 w-full bg-background-0">
                <ProjectList 
                  onSelectProject={selectProject} 
                  onCreateNew={() => setIsCreatingNew(true)} 
                />
-            </View>
+            </Box>
           )}
 
           {(!currentProject && isCreatingNew) && (
-             <View style={styles.dashboardContainer}>
+             <Box className="flex-1 w-full bg-background-0">
                <ImageImporter onImageImported={handleImageImported} />
-               <TouchableOpacity 
-                 style={styles.cancelButton} 
+               <Button 
+                 action="secondary" 
+                 variant="link" 
+                 className="mt-5 self-center p-2"
                  onPress={() => setIsCreatingNew(false)}
                >
-                 <Text style={styles.cancelButtonText}>Cancel</Text>
-               </TouchableOpacity>
-             </View>
+                 <ButtonText className="text-typography-500 font-semibold">Cancel</ButtonText>
+               </Button>
+             </Box>
           )}
 
           {currentProject && (
-            <Animated.View style={[styles.headerOverlay, animatedHeaderStyle]} pointerEvents="box-none">
-              <SafeAreaView style={styles.headerSafeArea} pointerEvents="box-none">
-                <View style={styles.headerContent}>
-                  <Text style={styles.title}>ProjectAlign</Text>
-                  <Text style={styles.subtitle}>{currentProject.name}</Text>
-                </View>
+            <Animated.View style={[animatedHeaderStyle, { position: 'absolute', top: 0, width: '100%', zIndex: 10 }]} pointerEvents="box-none">
+              <SafeAreaView edges={['top']} style={{ backgroundColor: 'transparent' }}>
+                <Center className="py-4 bg-black/80 border-b border-outline-100">
+                  <Heading size="2xl" className="text-typography-0 tracking-wide font-extrabold">ProjectAlign</Heading>
+                  <Text size="sm" className="text-primary-500 font-medium mt-0.5">{currentProject.name}</Text>
+                </Center>
               </SafeAreaView>
             </Animated.View>
           )}
 
           {currentProject && (
-            <Animated.View style={[styles.controlsOverlay, animatedControlsStyle]} pointerEvents="box-none">
+            <Animated.View style={[animatedControlsStyle, { position: 'absolute', inset: 0 }]} pointerEvents="box-none">
               {(!isProjectionMode || showSecondaryControls) && (
-                <TouchableOpacity 
-                  style={styles.backButton} 
+                <Button 
+                  action="secondary" 
+                  variant="outline" 
+                  className="absolute top-[60px] left-5 bg-background-900/90 border-outline-200"
                   onPress={handleExitProject}
                 >
-                  <Text style={styles.backButtonText}>← Projects</Text>
-                </TouchableOpacity>
+                  <ButtonText className="text-typography-0 text-xs font-semibold">← Projects</ButtonText>
+                </Button>
               )}
 
               {!isProjectionMode && (
-                <View style={styles.undoRedoContainer}>
-                  <TouchableOpacity 
-                    style={[styles.historyButton, undoStack.length === 0 && styles.disabledButton]} 
+                <HStack className="absolute top-[60px] right-5 gap-2">
+                  <Button 
+                    action="secondary" 
+                    variant="outline" 
+                    isDisabled={undoStack.length === 0}
+                    className={`bg-background-900/90 border-outline-200 ${undoStack.length === 0 ? 'opacity-20' : ''}`}
                     onPress={undo}
-                    disabled={undoStack.length === 0}
                   >
-                    <Text style={styles.historyButtonText}>Undo</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={[styles.historyButton, redoStack.length === 0 && styles.disabledButton]} 
+                    <ButtonText className="text-typography-0 text-xs font-bold">Undo</ButtonText>
+                  </Button>
+                  <Button 
+                    action="secondary" 
+                    variant="outline" 
+                    isDisabled={redoStack.length === 0}
+                    className={`bg-background-900/90 border-outline-200 ${redoStack.length === 0 ? 'opacity-20' : ''}`}
                     onPress={redo}
-                    disabled={redoStack.length === 0}
                   >
-                    <Text style={styles.historyButtonText}>Redo</Text>
-                  </TouchableOpacity>
-                </View>
+                    <ButtonText className="text-typography-0 text-xs font-bold">Redo</ButtonText>
+                  </Button>
+                </HStack>
               )}
 
               {isProjectionMode && showSecondaryControls && (
-                <TouchableOpacity 
-                  style={styles.hideControlsButton} 
+                <Button 
+                  action="secondary" 
+                  variant="outline"
+                  className="absolute top-[60px] right-5 bg-background-900/80 border-outline-200" 
                   onPress={() => setShowSecondaryControls(false)}
                 >
-                  <Text style={styles.hideControlsButtonText}>Hide Controls</Text>
-                </TouchableOpacity>
+                  <ButtonText className="text-typography-500 text-xs font-semibold">Hide Controls</ButtonText>
+                </Button>
               )}
 
               {(!isProjectionMode || showSecondaryControls) && (
-                <TouchableOpacity 
-                  style={[
-                    styles.modeToggle, 
-                    isProjectionMode && styles.modeToggleProjection
-                  ]} 
+                <Button 
+                  action={isProjectionMode ? 'secondary' : 'primary'}
+                  className={`absolute bottom-10 left-5 rounded-full shadow-lg ${isProjectionMode ? 'bg-background-900/50 border border-outline-200' : 'bg-primary-500'}`}
                   onPress={() => {
                     setIsProjectionMode(!isProjectionMode);
                     setShowSecondaryControls(false);
                   }}
                 >
-                  <Text style={styles.modeToggleText}>
+                  <ButtonText className={`uppercase font-extrabold text-sm ${isProjectionMode ? 'text-typography-0' : 'text-black'}`}>
                     {isProjectionMode ? (showSecondaryControls ? 'Lock Controls' : 'Unlock') : 'Project'}
-                  </Text>
-                </TouchableOpacity>
+                  </ButtonText>
+                </Button>
               )}
             </Animated.View>
           )}
-        </View>
+        </Box>
       </GestureHandlerRootView>
       </SafeAreaProvider>
     </GluestackUIProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  loadingText: {
-    color: theme.colors.primary,
-    fontSize: 18,
-    fontWeight: '600',
-    letterSpacing: 1,
-  },
-  workspaceAbsolute: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#000',
-  },
-  headerOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-  },
-  headerSafeArea: {
-    backgroundColor: 'transparent',
-  },
-  headerContent: {
-    padding: theme.spacing.md,
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: theme.colors.text,
-    letterSpacing: 0.5,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: theme.colors.primary,
-    fontWeight: '500',
-    marginTop: 2,
-  },
-  controlsOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  backButton: {
-    position: 'absolute',
-    top: 60,
-    left: 20,
-    backgroundColor: 'rgba(20, 20, 20, 0.9)',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  backButtonText: {
-    color: theme.colors.text,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  undoRedoContainer: {
-    position: 'absolute',
-    top: 60,
-    right: 20,
-    flexDirection: 'row',
-    gap: 8,
-  },
-  historyButton: {
-    backgroundColor: 'rgba(20, 20, 20, 0.9)',
-    paddingVertical: 8,
-    paddingHorizontal: 14,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  historyButtonText: {
-    color: theme.colors.text,
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  disabledButton: {
-    opacity: 0.2,
-  },
-  projectionContainer: {
-    backgroundColor: '#000',
-  },
-  modeToggle: {
-    position: 'absolute',
-    bottom: 40,
-    left: 20,
-    backgroundColor: theme.colors.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: theme.borderRadius.full,
-    ...theme.shadows.glow,
-  },
-  modeToggleProjection: {
-    backgroundColor: 'rgba(30, 30, 30, 0.5)',
-    shadowOpacity: 0,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  modeToggleText: {
-    color: '#000',
-    fontSize: 14,
-    fontWeight: '800',
-    textTransform: 'uppercase',
-  },
-  hideControlsButton: {
-    position: 'absolute',
-    top: 60,
-    right: 20,
-    backgroundColor: 'rgba(30, 30, 30, 0.8)',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: theme.borderRadius.md,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  hideControlsButtonText: {
-    color: theme.colors.textMuted,
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  dashboardContainer: {
-    flex: 1,
-    width: '100%',
-    backgroundColor: theme.colors.background,
-  },
-  cancelButton: {
-    marginTop: 20,
-    alignSelf: 'center',
-    padding: 10,
-  },
-  cancelButtonText: {
-    color: theme.colors.textMuted,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-});
+// Styles removed as they are replaced by NativeWind utility classes
+const styles = {}; // Kept empty object if any reference remains, though we shouldn't have any. 
+// Actually I'll just remove the whole create call.
+
