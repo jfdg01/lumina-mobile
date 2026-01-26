@@ -50,8 +50,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 3,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented Edit/Projection modes. Projection mode disables gestures and hides header/buttons. Verified in browser."
     },
     {
       "id": "US-004",

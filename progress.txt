@@ -17,9 +17,23 @@
 - Implemented `AlignmentWorkspace` with Reanimated gestures (Pan, Pinch, Rotate).
 - Integrated `AlignmentWorkspace` into `App.tsx` with conditional "Image Selected" state.
 - Added `babel.config.js` for Reanimated support.
+- Fixed web compatibility: `expo-file-system` doesn't work on web, bypass with `Platform.OS === 'web'` check.
+- Added "Use Demo Image" button for browser testing (native file picker can't be automated).
 - **Learnings for future iterations:**
-  - `react-native-reanimated` requires `babel.config.js` with `react-native-reanimated/plugin` to function, even in managed Expo (for worklets).
-  - Adding `babel.config.js` requires installing `babel-preset-expo` if it's missing.
+  - `react-native-reanimated` requires `babel.config.js` with `react-native-reanimated/plugin`.
+  - Adding `babel.config.js` requires installing `babel-preset-expo`.
   - `GestureHandlerRootView` must wrap the app root for gestures to work.
-  - Web verification passed after fixing babel config.
+  - `expo-file-system` throws on web - use `Platform.OS` check to skip file system operations on web.
+  - Native file picker dialogs can't be tested via browser automation; add demo/test buttons for verification.
+---
+
+## 2026-01-26 - US-003
+- Implemented Edit/Projection mode toggle in `App.tsx`.
+- Updated `AlignmentWorkspace` to disable gestures and hide "Reset" button in Projection Mode.
+- Implemented UI conditional rendering to hide headers and extra buttons in Projection Mode.
+- Added visual dashed border indicator for Edit Mode.
+- **Learnings for future iterations:**
+  - Conditional rendering in React Native for "modes" works well for projection-style apps.
+  - `Gesture.Pan().enabled(false)` effectively disables interactions for projection safety.
+  - Dimming the UI toggle in Projection Mode (low opacity) keeps it accessible but non-intrusive for projectors.
 ---
