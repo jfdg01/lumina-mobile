@@ -10,6 +10,9 @@ import { AlignmentWorkspace } from './components/AlignmentWorkspace';
 import { useProjectStore } from './store/useProjectStore';
 import { ProjectList } from './components/ProjectList';
 
+import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
+import '@/global.css';
+
 export default function App() {
   const { 
     currentProject, 
@@ -96,7 +99,8 @@ export default function App() {
   }
 
   return (
-    <SafeAreaProvider>
+    <GluestackUIProvider mode="dark">
+      <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <View style={[styles.container, isProjectionMode && styles.projectionContainer]}>
           <StatusBar hidden={isProjectionMode} barStyle="light-content" />
@@ -204,7 +208,8 @@ export default function App() {
           )}
         </View>
       </GestureHandlerRootView>
-    </SafeAreaProvider>
+      </SafeAreaProvider>
+    </GluestackUIProvider>
   );
 }
 
