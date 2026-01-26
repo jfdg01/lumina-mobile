@@ -101,61 +101,65 @@ export default function App() {
   if (isLoading) {
     return (
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <SafeAreaView style={styles.container}>
-          <View style={styles.content}>
-            <Text style={styles.title}>Loading...</Text>
-          </View>
-        </SafeAreaView>
+        <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+          <Text style={styles.title}>Loading...</Text>
+        </View>
       </GestureHandlerRootView>
     );
   }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={[styles.container, isProjectionMode && styles.projectionContainer]}>
+      <View style={[styles.container, isProjectionMode && styles.projectionContainer]}>
         <StatusBar hidden={isProjectionMode} barStyle="light-content" />
-        <View style={styles.content}>
-          {!isProjectionMode && (
-            <>
+        
+        {/* Workspace is absolutely positioned to fill entire screen */}
+        <View style={styles.workspaceAbsolute}>
+          {currentProject ? (
+            <AlignmentWorkspace 
+              imageUri={currentProject.imageUri} 
+              isProjectionMode={isProjectionMode}
+              initialTransform={currentProject.transform}
+              onTransformChange={handleTransformChange}
+            />
+          ) : (
+            <ImageImporter onImageImported={handleImageImported} />
+          )}
+        </View>
+
+        {/* Header overlay - only shown in Edit mode */}
+        {!isProjectionMode && (
+          <SafeAreaView style={styles.headerOverlay} pointerEvents="box-none">
+            <View style={styles.headerContent}>
               <Text style={styles.title}>ProjectAlign</Text>
               <Text style={styles.subtitle}>Digital Projector Assistant</Text>
-            </>
-          )}
-          
-          <View style={[styles.workspace, isProjectionMode && styles.projectionWorkspace]}>
-            {currentProject ? (
-              <>
-                <AlignmentWorkspace 
-                  imageUri={currentProject.imageUri} 
-                  isProjectionMode={isProjectionMode}
-                  initialTransform={currentProject.transform}
-                  onTransformChange={handleTransformChange}
-                />
-                
-                {!isProjectionMode && (
-                  <TouchableOpacity 
-                    style={styles.backButton} 
-                    onPress={handleClearProject}
-                  >
-                    <Text style={styles.backButtonText}>Choose Different Image</Text>
-                  </TouchableOpacity>
-                )}
+            </View>
+          </SafeAreaView>
+        )}
 
-                <TouchableOpacity 
-                  style={[styles.modeToggle, isProjectionMode && styles.modeToggleProjection]} 
-                  onPress={() => setIsProjectionMode(!isProjectionMode)}
-                >
-                  <Text style={styles.modeToggleText}>
-                    {isProjectionMode ? 'Exit Projection' : 'Enter Projection'}
-                  </Text>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <ImageImporter onImageImported={handleImageImported} />
+        {/* Control buttons overlay */}
+        {currentProject && (
+          <View style={styles.controlsOverlay} pointerEvents="box-none">
+            {!isProjectionMode && (
+              <TouchableOpacity 
+                style={styles.backButton} 
+                onPress={handleClearProject}
+              >
+                <Text style={styles.backButtonText}>Choose Different Image</Text>
+              </TouchableOpacity>
             )}
+
+            <TouchableOpacity 
+              style={[styles.modeToggle, isProjectionMode && styles.modeToggleProjection]} 
+              onPress={() => setIsProjectionMode(!isProjectionMode)}
+            >
+              <Text style={styles.modeToggleText}>
+                {isProjectionMode ? 'Exit Projection' : 'Enter Projection'}
+              </Text>
+            </TouchableOpacity>
           </View>
-        </View>
-      </SafeAreaView>
+        )}
+      </View>
     </GestureHandlerRootView>
   );
 }
@@ -165,11 +169,26 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
   },
-  content: {
-    flex: 1,
+  // Workspace fills entire screen absolutely - position never changes
+  workspaceAbsolute: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#000',
+  },
+  // Header overlays on top of workspace
+  headerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+  },
+  headerContent: {
     padding: theme.spacing.md,
     alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   title: {
     fontSize: 32,
@@ -180,20 +199,18 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 18,
     color: theme.colors.textMuted,
-    marginBottom: theme.spacing.xl,
   },
-  workspace: {
-    width: '100%',
-    flex: 1,
-    // alignItems: 'center', // workspace handles its own alignment
-    // justifyContent: 'flex-start',
-    backgroundColor: '#111', // Visual separation
-    borderRadius: 8,
-    overflow: 'hidden',
+  // Controls overlay for buttons
+  controlsOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   backButton: {
     position: 'absolute',
-    top: 10,
+    top: 50,
     left: 10,
     backgroundColor: 'rgba(0,0,0,0.6)',
     padding: 8,
@@ -204,11 +221,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   projectionContainer: {
-    backgroundColor: '#000',
-  },
-  projectionWorkspace: {
-    margin: 0,
-    borderRadius: 0,
     backgroundColor: '#000',
   },
   modeToggle: {
