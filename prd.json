@@ -146,8 +146,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 9,
-      "passes": false,
-      "notes": "Changing default entry state to locked/projection mode."
+      "passes": true,
+      "notes": "Implemented safe launch (defaults to Projection Mode) when opening projects. Updated label to 'Unlock for Editing' for clarity. Verified in browser."
     },
     {
       "id": "US-010",

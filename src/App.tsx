@@ -29,6 +29,7 @@ export default function App() {
         const savedProject = await loadCurrentProject();
         if (savedProject) {
           setCurrentProject(savedProject);
+          setIsProjectionMode(true); // Default to safe mode on resume
         }
       } catch (error) {
         console.error('Failed to load saved project:', error);
@@ -45,6 +46,7 @@ export default function App() {
     // Ask user for name? For now use default
     await saveProject(newProject);
     setCurrentProject(newProject);
+    setIsProjectionMode(true); // Default to safe mode for new projects too
     setIsCreatingNew(false);
   }, []);
 
@@ -79,6 +81,7 @@ export default function App() {
   // Handle selecting a project from the list
   const handleSelectProject = useCallback(async (project: ProjectState) => {
     setCurrentProject(project);
+    setIsProjectionMode(true); // Default to safe mode when selecting
     await saveProject(project); // Updates "current" pointer and last modified
   }, []);
 
@@ -181,7 +184,7 @@ export default function App() {
               onPress={() => setIsProjectionMode(!isProjectionMode)}
             >
               <Text style={styles.modeToggleText}>
-                {isProjectionMode ? 'Exit Projection' : 'Enter Projection'}
+                {isProjectionMode ? 'Unlock for Editing' : 'Enter Projection Mode'}
               </Text>
             </TouchableOpacity>
           </View>

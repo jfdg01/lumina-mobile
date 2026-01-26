@@ -123,3 +123,14 @@
   - To implement "Edit/Preview" modes without layout shifts, keep the layout geometry (borders, padding, margins) identical and only toggle visibility (opacity, color).
   - Browser verification is critical for pixel-perfect requirements; "looks good" isn't enough.
 ---
+
+## 2026-01-26 - US-009
+- Implemented Safe Launch Mode (Default to Projection).
+- Updated `App.tsx` to set `isProjectionMode: true` on project load, selection, and creation.
+- Updated UI toggle label to "Unlock for Editing" when in Projection Mode for better clarity.
+- Verified behavior with browser automation: Selecting a project enters Projection Mode by default.
+- Files changed: `src/App.tsx`, `prd.json`
+- **Learnings for future iterations:**
+  - Initializing state to `true` in various lifecycle methods (selection, load) ensures a "safe-by-default" experience.
+  - Labels like "Unlock for Editing" are more intuitive for safety-first features than generic "Exit Projection".
+---
