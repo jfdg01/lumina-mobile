@@ -19,3 +19,5 @@
 - Always check `git log` if files are missing unexpectedly.
 - `src/components/ui` contains the Gluestack components.
 ---
+- App Structure: `src` is the root for source. `global.css` in `src`. `@` alias maps to `./src`.
+- Components: All components in `src/components`. Gluestack UI in `src/components/ui`.
