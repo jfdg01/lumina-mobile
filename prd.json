@@ -181,6 +181,20 @@
       "priority": 11,
       "passes": false,
       "notes": "Refining the UI to match 'Premium' aesthetics as per project goals."
+    },
+    {
+      "id": "US-012",
+      "title": "Migrate to Safe Area Context",
+      "description": "As a developer, I want to use `react-native-safe-area-context` instead of `SafeAreaView` to ensure consistent and correct padding on all devices (especially phones with modern notches/dynamic islands).",
+      "acceptanceCriteria": [
+        "Refactor: Replace React Native `SafeAreaView` with `SafeAreaProvider` and `SafeAreaView` (or `useSafeAreaInsets`) from `react-native-safe-area-context`",
+        "Visual: Verify content does not clip under status bar or home indicator",
+        "Visual: Ensure immersive mode (Projection) handles insets correctly (e.g. status bar hidden but safe areas respected if needed)",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": "Replacing legacy SafeAreaView with modern standard."
     }
   ]
 }
