@@ -9,7 +9,7 @@ import Animated, {
   runOnJS
 } from 'react-native-reanimated';
 import { theme } from '../styles/theme';
-import { TransformState } from '../services/StorageService';
+import { TransformState } from '../store/useProjectStore';
 
 interface AlignmentWorkspaceProps {
   imageUri: string | null;

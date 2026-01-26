@@ -7,19 +7,24 @@ import Animated, { useAnimatedStyle, withTiming, useSharedValue } from 'react-na
 import { theme } from './styles/theme';
 import { ImageImporter } from './components/ImageImporter';
 import { AlignmentWorkspace } from './components/AlignmentWorkspace';
-import { 
-  loadCurrentProject, 
-  saveProject, 
-  createNewProject,
-  clearCurrentProject,
-  ProjectState,
-  TransformState
-} from './services/StorageService';
+import { useProjectStore } from './store/useProjectStore';
 import { ProjectList } from './components/ProjectList';
 
 export default function App() {
-  const [currentProject, setCurrentProject] = React.useState<ProjectState | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const { 
+    currentProject, 
+    isLoading, 
+    undoStack, 
+    redoStack,
+    loadProjects,
+    createProject,
+    selectProject,
+    exitProject,
+    updateTransform,
+    undo,
+    redo
+  } = useProjectStore();
+
   const [isProjectionMode, setIsProjectionMode] = React.useState(false);
   const [isCreatingNew, setIsCreatingNew] = React.useState(false);
   const [showSecondaryControls, setShowSecondaryControls] = React.useState(false);
@@ -28,30 +33,19 @@ export default function App() {
   const headerOpacity = useSharedValue(0);
   const controlsOpacity = useSharedValue(0);
 
-  // Undo/Redo History
-  const [undoStack, setUndoStack] = React.useState<TransformState[]>([]);
-  const [redoStack, setRedoStack] = React.useState<TransformState[]>([]);
-  const MAX_HISTORY = 20;
-
-  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   // Load saved project on app launch
   useEffect(() => {
-    const loadSavedProject = async () => {
-      try {
-        const savedProject = await loadCurrentProject();
-        if (savedProject) {
-          setCurrentProject(savedProject);
-          setIsProjectionMode(true); // Default to safe mode on resume
-        }
-      } catch (error) {
-        console.error('Failed to load saved project:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadSavedProject();
+    loadProjects();
   }, []);
+
+  // Sync projection mode when current project changes
+  useEffect(() => {
+    if (currentProject) {
+       // Optional: Auto-enter projection mode or logic here if needed
+       // Keeping existing behavior:
+       setIsProjectionMode(true);
+    }
+  }, [currentProject?.id]); // Only runs when project ID changes/loaded
 
   // Update opacity values based on mode
   useEffect(() => {
@@ -69,96 +63,15 @@ export default function App() {
 
   // Handle new image import - create new project
   const handleImageImported = useCallback(async (imageUri: string) => {
-    const newProject = createNewProject(imageUri);
-    await saveProject(newProject);
-    setCurrentProject(newProject);
-    setIsProjectionMode(true); 
+    await createProject(imageUri);
+    // currentProject and projection mode are updated by store/effect
     setIsCreatingNew(false);
   }, []);
-
-  // Handle transform changes with debounced save
-  const handleTransformChange = useCallback((transform: TransformState) => {
-    if (!currentProject) return;
-
-    setUndoStack(prev => {
-      const newStack = [...prev, currentProject.transform];
-      if (newStack.length > MAX_HISTORY) {
-        return newStack.slice(newStack.length - MAX_HISTORY);
-      }
-      return newStack;
-    });
-    setRedoStack([]);
-
-    const updatedProject = {
-      ...currentProject,
-      transform,
-      lastModified: Date.now(),
-    };
-    setCurrentProject(updatedProject);
-
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-    }
-    saveTimeoutRef.current = setTimeout(async () => {
-      await saveProject(updatedProject);
-    }, 500);
-  }, [currentProject]);
-
-  // Undo / Redo Actions
-  const handleUndo = useCallback(() => {
-    if (undoStack.length === 0 || !currentProject) return;
-
-    const previousTransform = undoStack[undoStack.length - 1];
-    const newUndoStack = undoStack.slice(0, -1);
-
-    setRedoStack(prev => [...prev, currentProject.transform]);
-    setUndoStack(newUndoStack);
-
-    const updatedProject = {
-      ...currentProject,
-      transform: previousTransform,
-      lastModified: Date.now(),
-    };
-    setCurrentProject(updatedProject);
-    saveProject(updatedProject);
-  }, [undoStack, currentProject]);
-
-  const handleRedo = useCallback(() => {
-    if (redoStack.length === 0 || !currentProject) return;
-
-    const nextTransform = redoStack[redoStack.length - 1];
-    const newRedoStack = redoStack.slice(0, -1);
-
-    setUndoStack(prev => [...prev, currentProject.transform]);
-    setRedoStack(newRedoStack);
-
-    const updatedProject = {
-      ...currentProject,
-      transform: nextTransform,
-      lastModified: Date.now(),
-    };
-    setCurrentProject(updatedProject);
-    saveProject(updatedProject);
-  }, [redoStack, currentProject]);
 
   const handleExitProject = useCallback(async () => {
-    setCurrentProject(null);
-    await clearCurrentProject();
+    await exitProject();
     setIsCreatingNew(false);
-  }, []);
-
-  const handleSelectProject = useCallback(async (project: ProjectState) => {
-    setCurrentProject(project);
-    setIsProjectionMode(true);
-    await saveProject(project);
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      if (saveTimeoutRef.current) {
-        clearTimeout(saveTimeoutRef.current);
-      }
-    };
+    setIsProjectionMode(false); // Reset mode
   }, []);
 
   useEffect(() => {
@@ -194,7 +107,7 @@ export default function App() {
                 imageUri={currentProject.imageUri} 
                 isProjectionMode={isProjectionMode}
                 initialTransform={currentProject.transform}
-                onTransformChange={handleTransformChange}
+                onTransformChange={updateTransform}
                 onLongPress={() => isProjectionMode && setShowSecondaryControls(true)}
               />
             </View>
@@ -203,7 +116,7 @@ export default function App() {
           {(!currentProject && !isCreatingNew) && (
             <View style={styles.dashboardContainer}>
                <ProjectList 
-                 onSelectProject={handleSelectProject} 
+                 onSelectProject={selectProject} 
                  onCreateNew={() => setIsCreatingNew(true)} 
                />
             </View>
@@ -247,14 +160,14 @@ export default function App() {
                 <View style={styles.undoRedoContainer}>
                   <TouchableOpacity 
                     style={[styles.historyButton, undoStack.length === 0 && styles.disabledButton]} 
-                    onPress={handleUndo}
+                    onPress={undo}
                     disabled={undoStack.length === 0}
                   >
                     <Text style={styles.historyButtonText}>Undo</Text>
                   </TouchableOpacity>
                   <TouchableOpacity 
                     style={[styles.historyButton, redoStack.length === 0 && styles.disabledButton]} 
-                    onPress={handleRedo}
+                    onPress={redo}
                     disabled={redoStack.length === 0}
                   >
                     <Text style={styles.historyButtonText}>Redo</Text>

@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Platform } from 'react-native';
 import { theme } from '../styles/theme';
-import { ProjectState, getAllProjects, deleteProject } from '../services/StorageService';
+import { ProjectState } from '../store/useProjectStore';
+import { useProjectStore } from '../store/useProjectStore';
 
 interface ProjectListProps {
   onSelectProject: (project: ProjectState) => void;
@@ -9,56 +10,49 @@ interface ProjectListProps {
 }
 
 export const ProjectList: React.FC<ProjectListProps> = ({ onSelectProject, onCreateNew }) => {
-  const [projects, setProjects] = useState<ProjectState[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { projects, isLoading, deleteProject } = useProjectStore();
 
-  const loadProjects = async () => {
-    setIsLoading(true);
-    const data = await getAllProjects();
-    setProjects(data);
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
-    loadProjects();
-  }, []);
-
-  const handleDelete = async (project: ProjectState) => {
-    Alert.alert(
-      "Delete Project",
-      `Are you sure you want to delete "${project.name}"?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Delete", 
-          style: "destructive", 
-          onPress: async () => {
-            await deleteProject(project.id);
-            loadProjects();
+  const handleDelete = (project: ProjectState) => {
+    if (Platform.OS === 'web') {
+      deleteProject(project.id);
+    } else {
+      Alert.alert(
+        "Delete Project",
+        `Are you sure you want to delete "${project.name}"?`,
+        [
+          {
+            text: "Cancel",
+            style: "cancel"
+          },
+          { 
+            text: "Delete", 
+            onPress: () => deleteProject(project.id),
+            style: "destructive"
           }
-        }
-      ]
-    );
+        ]
+      );
+    }
   };
 
   const renderItem = ({ item }: { item: ProjectState }) => (
-    <TouchableOpacity 
-      style={styles.projectItem} 
-      onPress={() => onSelectProject(item)}
-    >
-      <View style={styles.projectInfo}>
+    <View style={styles.projectItem}>
+      <TouchableOpacity 
+        style={styles.projectInfo} 
+        onPress={() => onSelectProject(item)}
+      >
         <Text style={styles.projectName}>{item.name}</Text>
         <Text style={styles.projectDate}>
           {new Date(item.lastModified).toLocaleDateString()} {new Date(item.lastModified).toLocaleTimeString()}
         </Text>
-      </View>
+      </TouchableOpacity>
+      
       <TouchableOpacity 
         style={styles.deleteButton} 
         onPress={() => handleDelete(item)}
       >
-        <Text style={styles.deleteText}>Delete</Text>
+        <Text style={styles.deleteButtonText}>Delete</Text>
       </TouchableOpacity>
-    </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -134,20 +128,19 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   deleteButton: {
-    backgroundColor: 'rgba(255, 50, 50, 0.1)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: theme.borderRadius.sm,
-    marginLeft: theme.spacing.sm,
+    padding: 8,
+    marginLeft: 8,
+    backgroundColor: '#3a1111',
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255, 50, 50, 0.2)',
+    borderColor: '#ff4444',
   },
-  deleteText: {
-    color: theme.colors.danger,
-    fontSize: 11,
+  deleteButtonText: {
+    color: '#ff4444',
+    fontSize: 12,
     fontWeight: '700',
-    textTransform: 'uppercase',
   },
+
   emptyState: {
     flex: 1,
     justifyContent: 'center',
