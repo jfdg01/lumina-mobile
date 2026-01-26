@@ -1,215 +1,87 @@
 {
   "project": "ProjectAlign",
-  "branchName": "ralph/project-align-mvp",
-  "description": "ProjectAlign - Digital Projector Assistant for artists. Allows importing images, precise alignment, and locking for projection.",
+  "branchName": "ralph/gluestack-migration",
+  "description": "Migrate the existing React Native application to use Gluestack UI fully, replacing custom StyleSheet implementations and ad-hoc styling with a standardized, design-system-driven approach.",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Image Import & Sandbox Storage",
-      "description": "As an artist, I want to select an image and have it saved to the app's internal storage.",
+      "title": "Global Configuration & Cleanup",
+      "description": "As a developer, I want the project configured correctly for Gluestack + NativeWind so I can build features without conflict.",
       "acceptanceCriteria": [
-        "Initialize project scaffolding: DONE",
-        "Integration of expo-image-picker for gallery access",
-        "Integration of expo-file-system for local storage",
-        "Feature: Select image and copy to DocumentDirectory with unique ID",
-        "UI: Simple button to trigger import",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
+        "Verify `GluestackUIProvider` is correctly wrapping the root",
+        "Ensure `global.css` imports Tailwind directives and is loaded",
+        "Verify `tailwind.config.js` includes all Gluestack component paths",
+        "Remove `src/styles/theme.ts` (or mark as deprecated)",
+        "Application runs without errors",
+        "Typecheck passes"
       ],
       "priority": 1,
-      "passes": true,
-      "notes": "Implemented with expo-file-system v19 new API. Verified in browser."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-002",
-      "title": "Alignment Workspace (Gestures)",
-      "description": "As an artist, I want to manipulate the image to align it with my canvas using gestures.",
+      "title": "App Shell & Navigation Layout",
+      "description": "As a user, I want a modern, cohesive app shell.",
       "acceptanceCriteria": [
-        "Install react-native-gesture-handler and react-native-reanimated",
-        "Component: AlignmentWorkspace",
-        "Feature: Simultaneous Pan, Pinch (Scale), and Rotation gestures",
-        "Feature: Reset button to restore default transform",
-        "Performance: Smooth 60fps interactions",
+        "Convert `App.tsx` container and layout to use `Box`, `Center`, `VStack` (or `class=\"flex-col\"`)",
+        "Replace `StatusBar` usage if Gluestack handles it (or keep native but style container)",
+        "Replace custom header and overlay controls in `App.tsx` with Gluestack components (e.g., `Heading`, `HStack` for top bar)",
+        "Use NativeWind for positioning (e.g., `absolute top-0 w-full`)",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 2,
-      "passes": true,
-      "notes": "Implemented AlignmentWorkspace with Reanimated gestures (Simultaneous Pan, Pinch, Rotate). Verified verification via web build (gestures require touch/mouse simulation)."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-003",
-      "title": "Modes & UI Layout",
-      "description": "As an artist, I want to switch between Edit and Projection modes to prevent accidental changes.",
+      "title": "Project List Component Refresh",
+      "description": "As a user, I want to browse my projects in a visually appealing list.",
       "acceptanceCriteria": [
-        "UI: Toggle switch for Edit/Projection Mode",
-        "Feature: Edit Mode shows full UI and active gestures",
-        "Feature: Projection Mode disables gestures and dims/hides UI",
-        "Visual Interaction: Clearly indicate current mode (e.g., border or icon)",
+        "Rewrite `ProjectList.tsx` using Gluestack `Card` (if available) or styled `Box`",
+        "Use `Text` (Gluestack) for all typography with correct semantic sizes (`size=\"xl\"`, etc.)",
+        "Replace standard buttons with Gluestack `Button` variants (Primary, Outline)",
+        "Implement responsive layout using NativeWind classes",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 3,
-      "passes": true,
-      "notes": "Implemented Edit/Projection modes. Projection mode disables gestures and hides header/buttons. Verified in browser."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-004",
-      "title": "Persistence",
-      "description": "As an artist, I want my alignment and image selection to be saved automatically.",
+      "title": "Image Importer Screen Refresh",
+      "description": "As a user, I want a sleek interface for importing new images.",
       "acceptanceCriteria": [
-        "Install @react-native-async-storage/async-storage",
-        "Feature: Auto-save transform values (x, y, scale, rotation)",
-        "Feature: specific Project ID referencing the image file",
-        "Feature: Restore last active project state on app launch",
+        "Rewrite `ImageImporter.tsx`",
+        "Use Gluestack input fields (if any) or styled Drop zones",
+        "Replace \"Cancel\" and \"Import\" buttons with Gluestack versions",
+        "Ensure loading states use Gluestack `Spinner` or equivalent",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 4,
-      "passes": true,
-      "notes": "Implemented StorageService with AsyncStorage. Auto-saves transform on gesture end (debounced). Restores project state on app launch. Verified in browser."
+      "passes": false,
+      "notes": ""
     },
     {
       "id": "US-005",
-      "title": "Device Wake Lock",
-      "description": "As an artist, I need the screen to stay awake while I am projecting.",
+      "title": "Alignment Workspace Controls",
+      "description": "As a user, I want ergonomic and good-looking controls when aligning my projection.",
       "acceptanceCriteria": [
-        "Install expo-keep-awake",
-        "Feature: Prevent screen sleep when in Projection Mode",
-        "Feature: Allow screen sleep when in Edit Mode (or default behavior)",
-        "Ensure dark background/theme is enforced",
-        "Typecheck passes"
+        "Rewrite the overlay controls in `AlignmentWorkspace.tsx`",
+        "Replace \"Hide Controls\", \"Undo\", \"Redo\" buttons with icon-supported Gluestack `Button` or `Pressable`",
+        "Ensure the main workspace canvas area remains functional (Reanimated/GestureHandler logic preserved)",
+        "Style the floating menus/panels using Gluestack \"Glassmorphism\" effect where appropriate",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 5,
-      "passes": true,
-      "notes": "Implemented expo-keep-awake with activateKeepAwakeAsync/deactivateKeepAwake. Screen stays awake in Projection Mode, allows sleep in Edit Mode. Dark background enforced. Typecheck passes."
-    },
-    {
-      "id": "US-006",
-      "title": "Global Gesture Area",
-      "description": "As an artist, I want to pinch/rotate anywhere on the screen, not just on the image bounds, for easier manipulation.",
-      "acceptanceCriteria": [
-        "Feature: Pinch gesture works anywhere in the workspace, not just on image",
-        "Feature: Rotation gesture works anywhere in the workspace",
-        "Feature: Pan gesture can optionally require starting on image or work globally",
-        "Gestures should feel natural and responsive regardless of finger position",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 6,
-      "passes": true,
-      "notes": "Moved GestureDetector to wrap entire workspace. Pinch, rotation, and pan gestures now work anywhere on screen. Verified in browser."
-    },
-    {
-      "id": "US-007",
-      "title": "Consistent Image Position Between Modes",
-      "description": "As an artist, I need the image position to remain exactly the same when switching between Edit and Projection modes so my alignment is accurate.",
-      "acceptanceCriteria": [
-        "Bug: Image shifts when switching modes due to header show/hide",
-        "Fix: Image position must be pixel-perfect between Edit and Projection modes",
-        "Feature: Workspace layout should not depend on header visibility",
-        "Consider: Use absolute positioning or fullscreen workspace in both modes",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 7,
-      "passes": true,
-      "notes": "Refactored layout to use absolute positioning for workspace. Fixed border-width shift issue by keeping border constant and toggling color. Verified pixel-perfect consistency in browser."
-    },
-    {
-      "id": "US-008",
-      "title": "Multi-Project Management",
-      "description": "As an artist, I want to save multiple projects (each with their own image and alignment) and easily switch between them.",
-      "acceptanceCriteria": [
-        "Feature: Save current project with name/identifier",
-        "Feature: List all saved projects",
-        "Feature: Load a specific project from the list",
-        "Feature: Delete a project from the list",
-        "Feature: Each project stores: image URI, transform values, name, last modified",
-        "UI: Project selector/picker interface",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 8,
-      "passes": true,
-      "notes": "Implemented multi-project management with List view, Create flow, and Delete capability. StorageService refactored to support collections."
-    },
-    {
-      "id": "US-009",
-      "title": "Safe Launch Mode (Default to Projection)",
-      "description": "As an artist, when I open a project, I want it to start in Projection Mode (safe/locked) so I don't accidentally move my aligned image.",
-      "acceptanceCriteria": [
-        "Feature: When selecting a project, immediately launch into Projection Mode (locked gestures)",
-        "UI: Explicit 'Unlock for Editing' or 'Enter Edit Mode' flow",
-        "Safety: Prevent accidental gestures on load",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 9,
-      "passes": true,
-      "notes": "Implemented safe launch (defaults to Projection Mode) when opening projects. Updated label to 'Unlock for Editing' for clarity. Verified in browser."
-    },
-    {
-      "id": "US-012",
-      "title": "Migrate to Safe Area Context",
-      "description": "As a developer, I want to use `react-native-safe-area-context` instead of `SafeAreaView` to ensure consistent and correct padding on all devices (especially phones with modern notches/dynamic islands).",
-      "acceptanceCriteria": [
-        "Refactor: Replace React Native `SafeAreaView` with `SafeAreaProvider` and `SafeAreaView` (or `useSafeAreaInsets`) from `react-native-safe-area-context`",
-        "Visual: Verify content does not clip under status bar or home indicator",
-        "Visual: Ensure immersive mode (Projection) handles insets correctly (e.g. status bar hidden but safe areas respected if needed)",
-        "Typecheck passes"
-      ],
-      "priority": 10,
-      "passes": true,
-      "notes": "Migrated from legacy SafeAreaView to react-native-safe-area-context. Verified UI stability and type safety."
-    },
-    {
-      "id": "US-013",
-      "title": "Safe Project Navigation",
-      "description": "As an artist, I want to switch projects safely without entering Edit Mode, preventing accidental exits during projection.",
-      "acceptanceCriteria": [
-        "Feature: Separate 'Exit Project' navigation from 'Edit Mode' controls",
-        "Interaction: Implement a safety trigger (e.g., long press or specific corner area) to show navigation controls in Projection Mode",
-        "Efficiency: Allow returning to Project List without unlocking the image for editing",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 11,
-      "passes": true,
-      "notes": "Implemented safety trigger (long press) to reveal navigation controls in Projection Mode."
-    },
-    {
-      "id": "US-010",
-      "title": "Undo/Redo (Ctrl+Z)",
-      "description": "As an artist, I want to undo my last gesture if I make a mistake while aligning.",
-      "acceptanceCriteria": [
-        "Feature: Maintain history of TransformState changes (limit 10-20 steps)",
-        "UI: Undo button visible in Edit Mode (disabled if no history)",
-        "UI: Optional Redo button",
-        "Interaction: Trigger undo on button press",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 12,
-      "passes": true,
-      "notes": "Implemented history manager (undo/redo stacks) in App.tsx. Verified via browser automation."
-    },
-    {
-      "id": "US-011",
-      "title": "UI Polish & Theming",
-      "description": "As an artist, I want a premium, distraction-free interface that looks professional and allows me to focus on my artwork.",
-      "acceptanceCriteria": [
-        "Visual: Professional Dark Theme (consistent colors, typography, spacing)",
-        "Components: Style buttons, inputs, and lists to be touch-friendly and aesthetic",
-        "Typography: Use a modern font (e.g. Inter, Roboto, or System Default with better weights)",
-        "Interaction: Add press states and smooth transitions for UI elements",
-        "Modes: Clear visual distinction between Edit and Projection modes (seamless)",
-        "Typecheck passes",
-        "Verify in browser using dev-browser skill"
-      ],
-      "priority": 13,
-      "passes": true,
-      "notes": "Implemented premium Cyber Cyan theme, high-contrast UI, and Reanimated transitions. Verified in browser."
+      "passes": false,
+      "notes": ""
     }
   ]
 }
