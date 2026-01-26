@@ -1,0 +1,88 @@
+{
+  "project": "ProjectAlign",
+  "branchName": "ralph/project-align-mvp",
+  "description": "ProjectAlign - Digital Projector Assistant for artists. Allows importing images, precise alignment, and locking for projection.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Image Import & Sandbox Storage",
+      "description": "As an artist, I want to select an image and have it saved to the app's internal storage.",
+      "acceptanceCriteria": [
+        "Initialize project scaffolding if missing",
+        "Integration of expo-image-picker for gallery access",
+        "Integration of expo-file-system for local storage",
+        "Feature: Select image and copy to DocumentDirectory with unique ID",
+        "UI: Simple button to trigger import",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Alignment Workspace (Gestures)",
+      "description": "As an artist, I want to manipulate the image to align it with my canvas using gestures.",
+      "acceptanceCriteria": [
+        "Install react-native-gesture-handler and react-native-reanimated",
+        "Component: AlignmentWorkspace",
+        "Feature: Simultaneous Pan, Pinch (Scale), and Rotation gestures",
+        "Feature: Reset button to restore default transform",
+        "Performance: Smooth 60fps interactions",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Modes & UI Layout",
+      "description": "As an artist, I want to switch between Edit and Projection modes to prevent accidental changes.",
+      "acceptanceCriteria": [
+        "UI: Toggle switch for Edit/Projection Mode",
+        "Feature: Edit Mode shows full UI and active gestures",
+        "Feature: Projection Mode disables gestures and dims/hides UI",
+        "Visual Interaction: Clearly indicate current mode (e.g., border or icon)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Persistence",
+      "description": "As an artist, I want my alignment and image selection to be saved automatically.",
+      "acceptanceCriteria": [
+        "Install @react-native-async-storage/async-storage",
+        "Feature: Auto-save transform values (x, y, scale, rotation)",
+        "Feature: specific Project ID referencing the image file",
+        "Feature: Restore last active project state on app launch",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Device Wake Lock",
+      "description": "As an artist, I need the screen to stay awake while I am projecting.",
+      "acceptanceCriteria": [
+        "Install expo-keep-awake",
+        "Feature: Prevent screen sleep when in Projection Mode",
+        "Feature: Allow screen sleep when in Edit Mode (or default behavior)",
+        "Ensure dark background/theme is enforced",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
