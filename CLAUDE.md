@@ -17,4 +17,6 @@
   - Avoid toggling `borderWidth` or `padding` for selection states; use transparent colors or overlays to maintain box-model geometry.
 - **Storage**:
   - Use "Collection" key (map) + "Current ID" key for simple multi-item state.
-
+- **Interactions**:
+  - Use non-obvious triggers (e.g., Long Press) to reveal administrative/navigation controls in "Safe" or "Projection" modes to prevent accidental activation.
+  - Implement a way to quickly hide these controls once revealed (e.g., "Hide Controls" button).

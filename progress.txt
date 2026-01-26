@@ -134,3 +134,25 @@
   - Initializing state to `true` in various lifecycle methods (selection, load) ensures a "safe-by-default" experience.
   - Labels like "Unlock for Editing" are more intuitive for safety-first features than generic "Exit Projection".
 ---
+
+## 2026-01-26 20:50:44 - US-012
+- Migrated legacy `SafeAreaView` to `react-native-safe-area-context`.
+- Wrapped the application root with `SafeAreaProvider`.
+- Updated `App.tsx` to use the modern `SafeAreaView` for the header overlay.
+- Verified that images do not shift when toggling between Edit and Projection modes.
+- **Learnings for future iterations:**
+  - `react-native-safe-area-context` is the standard for modern React Native apps to handle insets correctly.
+  - When using absolute positioning for a background layer, ensure the `SafeAreaView` only wraps the UI overlays to avoid unintended padding on the workspace itself.
+---
+
+## 2026-01-26 21:05:00 - US-013
+- Implemented Safe Project Navigation via long-press trigger.
+- Added LongPress gesture (1s) to `AlignmentWorkspace.tsx`.
+- Added `showSecondaryControls` state to `App.tsx` to manage hidden UI.
+- Revealed "← Projects" and "Hide Controls" buttons only after long-press in Projection Mode.
+- Verified that exiting projects works without unlocking the canvas for editing.
+- **Learnings for future iterations:**
+  - Real-world "Safety First" UI often requires non-obvious triggers (like long press) to avoid accidental activation.
+  - `Gesture.LongPress()` integrates seamlessly with `Gesture.Simultaneous()` but requires `runOnJS` if it modifies React state.
+  - UI overlays in projection apps should be "dimmed and hidden" by default but "discoverable" via specific interactions.
+---

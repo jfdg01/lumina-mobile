@@ -175,8 +175,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 11,
-      "passes": false,
-      "notes": "Ensuring project switching doesn't require unlocking the canvas."
+      "passes": true,
+      "notes": "Implemented safety trigger (long press) to reveal navigation controls in Projection Mode."
     },
     {
       "id": "US-010",

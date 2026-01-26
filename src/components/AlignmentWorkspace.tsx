@@ -16,13 +16,15 @@ interface AlignmentWorkspaceProps {
   isProjectionMode: boolean;
   initialTransform?: TransformState;
   onTransformChange?: (transform: TransformState) => void;
+  onLongPress?: () => void;
 }
 
 export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({ 
   imageUri, 
   isProjectionMode,
   initialTransform,
-  onTransformChange
+  onTransformChange,
+  onLongPress
 }) => {
   const isInitialized = useRef(false);
 
@@ -90,8 +92,16 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
       runOnJS(notifyTransformChange)();
     });
 
+  const longPress = Gesture.LongPress()
+    .minDuration(1000)
+    .onStart(() => {
+      if (onLongPress) {
+        runOnJS(onLongPress)();
+      }
+    });
+
   // Compose gestures for simultaneous execution
-  const composed = Gesture.Simultaneous(pan, pinch, rotate);
+  const composed = Gesture.Simultaneous(pan, pinch, rotate, longPress);
 
   // Animated style
   const animatedStyle = useAnimatedStyle(() => {

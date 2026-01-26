@@ -21,6 +21,7 @@ export default function App() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [isProjectionMode, setIsProjectionMode] = React.useState(false);
   const [isCreatingNew, setIsCreatingNew] = React.useState(false);
+  const [showSecondaryControls, setShowSecondaryControls] = React.useState(false);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load saved project on app launch
@@ -133,6 +134,7 @@ export default function App() {
                 isProjectionMode={isProjectionMode}
                 initialTransform={currentProject.transform}
                 onTransformChange={handleTransformChange}
+                onLongPress={() => isProjectionMode && setShowSecondaryControls(true)}
               />
             </View>
           )}
@@ -172,7 +174,7 @@ export default function App() {
           {/* Control buttons overlay */}
           {currentProject && (
             <View style={styles.controlsOverlay} pointerEvents="box-none">
-              {!isProjectionMode && (
+              {(!isProjectionMode || showSecondaryControls) && (
                 <TouchableOpacity 
                   style={styles.backButton} 
                   onPress={handleExitProject}
@@ -181,12 +183,24 @@ export default function App() {
                 </TouchableOpacity>
               )}
 
+              {isProjectionMode && showSecondaryControls && (
+                <TouchableOpacity 
+                  style={styles.hideControlsButton} 
+                  onPress={() => setShowSecondaryControls(false)}
+                >
+                  <Text style={styles.hideControlsButtonText}>Hide Controls</Text>
+                </TouchableOpacity>
+              )}
+
               <TouchableOpacity 
                 style={[styles.modeToggle, isProjectionMode && styles.modeToggleProjection]} 
-                onPress={() => setIsProjectionMode(!isProjectionMode)}
+                onPress={() => {
+                  setIsProjectionMode(!isProjectionMode);
+                  setShowSecondaryControls(false);
+                }}
               >
                 <Text style={styles.modeToggleText}>
-                  {isProjectionMode ? 'Unlock for Editing' : 'Enter Projection Mode'}
+                  {isProjectionMode ? (showSecondaryControls ? 'Lock Controls' : 'Unlock for Editing') : 'Enter Projection Mode'}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -280,6 +294,20 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  hideControlsButton: {
+    position: 'absolute',
+    top: 50,
+    right: 10,
+    backgroundColor: 'rgba(50, 50, 50, 0.6)',
+    padding: 8,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  hideControlsButtonText: {
+    color: theme.colors.textMuted,
+    fontSize: 12,
   },
   dashboardContainer: {
     flex: 1,
