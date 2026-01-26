@@ -113,8 +113,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 7,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Refactored layout to use absolute positioning for workspace. Header/controls are now overlays. Image position is mathematically guaranteed to be stable between modes."
     },
     {
       "id": "US-008",

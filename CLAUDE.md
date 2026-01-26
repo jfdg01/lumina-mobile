@@ -12,3 +12,5 @@
   - Requires `babel.config.js` with `react-native-reanimated/plugin`
   - Ensure `babel-preset-expo` is installed when using custom babel config
   - Wrap root component in `GestureHandlerRootView`
+- **Layout**:
+  - Use `position: 'absolute'` for workspaces/canvases that must remain static while UI overlays toggle. flow-based layouts (flex) can cause unwanted shifts.
