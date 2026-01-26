@@ -142,7 +142,6 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* GestureDetector now wraps the entire workspace for global gesture capture */}
       <GestureDetector gesture={composed}>
         <Animated.View style={styles.workspace}>
           <Animated.View style={[
@@ -161,7 +160,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
 
       {!isProjectionMode && (
         <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-          <Text style={styles.resetButtonText}>Reset Transform</Text>
+          <Text style={styles.resetButtonText}>Reset</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -173,7 +172,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     overflow: 'hidden',
-    backgroundColor: '#000', // Ensure contrast
+    backgroundColor: '#000', 
   },
   workspace: {
     flex: 1,
@@ -184,14 +183,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1a1a1a',
+    backgroundColor: theme.colors.surface,
   },
   emptyText: {
     color: theme.colors.textMuted,
     fontSize: 16,
+    fontWeight: '500',
   },
   imageContainer: {
-    // Initial size constraints to prevent massive layout shifts
     width: 300,
     height: 300,
     justifyContent: 'center',
@@ -205,19 +204,20 @@ const styles = StyleSheet.create({
   },
   resetButton: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 40,
     right: 20,
-    backgroundColor: theme.colors.surface,
-    paddingVertical: 10,
+    backgroundColor: 'rgba(20, 20, 20, 0.9)',
+    paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 20,
+    borderRadius: theme.borderRadius.full,
     borderWidth: 1,
-    borderColor: theme.colors.textMuted,
+    borderColor: theme.colors.border,
   },
   resetButtonText: {
     color: theme.colors.text,
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '700',
+    textTransform: 'uppercase',
   },
   editIndicator: {
     borderStyle: 'dashed',

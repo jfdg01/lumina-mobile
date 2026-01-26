@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Button, Image, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
 import { pickImage, saveImageToSandbox } from '../services/ImageService';
+import { theme } from '../styles/theme';
 
 interface ImageImporterProps {
   onImageImported?: (uri: string) => void;
@@ -18,7 +19,6 @@ export const ImageImporter: React.FC<ImageImporterProps> = ({ onImageImported })
         if (onImageImported) {
           onImageImported(savedUri);
         }
-        Alert.alert("Success", "Image imported to sandbox!");
       }
     } catch (error) {
       console.error("Import failed:", error);
@@ -26,7 +26,6 @@ export const ImageImporter: React.FC<ImageImporterProps> = ({ onImageImported })
     }
   };
 
-  // Demo image for testing (bypasses file picker)
   const handleUseDemoImage = () => {
     const demoUri = 'https://picsum.photos/800/600';
     setLastImportedUri(demoUri);
@@ -37,19 +36,24 @@ export const ImageImporter: React.FC<ImageImporterProps> = ({ onImageImported })
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={handleImport}>
-        <Text style={styles.buttonText}>Import Image</Text>
-      </TouchableOpacity>
+      <Text style={styles.header}>New Project</Text>
       
-      <TouchableOpacity style={styles.demoButton} onPress={handleUseDemoImage}>
-        <Text style={styles.demoButtonText}>Use Demo Image</Text>
-      </TouchableOpacity>
+      <View style={styles.importOptions}>
+        <TouchableOpacity style={styles.button} onPress={handleImport}>
+          <Text style={styles.buttonText}>Select from Gallery</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.demoButton} onPress={handleUseDemoImage}>
+          <Text style={styles.demoButtonText}>Try with Demo Image</Text>
+        </TouchableOpacity>
+      </View>
       
       {lastImportedUri && (
         <View style={styles.previewContainer}>
-          <Text style={styles.label}>Last Imported:</Text>
-          <Image source={{ uri: lastImportedUri }} style={styles.image} />
-          <Text style={styles.path}>{lastImportedUri}</Text>
+          <Text style={styles.label}>Preview</Text>
+          <View style={styles.imageFrame}>
+            <Image source={{ uri: lastImportedUri }} style={styles.image} />
+          </View>
         </View>
       )}
     </View>
@@ -58,60 +62,77 @@ export const ImageImporter: React.FC<ImageImporterProps> = ({ onImageImported })
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    padding: theme.spacing.lg,
     alignItems: 'center',
     width: '100%',
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  header: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: theme.colors.text,
+    marginBottom: theme.spacing.xl,
+    marginTop: theme.spacing.xl,
+    letterSpacing: 1,
+  },
+  importOptions: {
+    width: '100%',
+    gap: theme.spacing.md,
   },
   button: {
-    backgroundColor: '#6200ee',
-    paddingVertical: 12,
+    backgroundColor: theme.colors.primary,
+    paddingVertical: 16,
     paddingHorizontal: 24,
-    borderRadius: 8,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    borderRadius: theme.borderRadius.full,
+    alignItems: 'center',
+    ...theme.shadows.glow,
   },
   buttonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: '#000',
+    fontSize: 14,
+    fontWeight: '800',
+    textTransform: 'uppercase',
+  },
+  demoButton: {
+    backgroundColor: 'rgba(20, 20, 20, 0.9)',
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: theme.borderRadius.full,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    alignItems: 'center',
+  },
+  demoButtonText: {
+    color: theme.colors.text,
+    fontSize: 14,
+    fontWeight: '700',
+    textTransform: 'uppercase',
   },
   previewContainer: {
-    marginTop: 20,
+    marginTop: theme.spacing.xxl,
     alignItems: 'center',
     width: '100%',
   },
   label: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
+    fontSize: 12,
+    color: theme.colors.primary,
+    fontWeight: '800',
+    marginBottom: theme.spacing.sm,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+  },
+  imageFrame: {
+    padding: 4,
+    backgroundColor: theme.colors.surfaceLight,
+    borderRadius: theme.borderRadius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
   },
   image: {
-    width: 200,
-    height: 150,
-    borderRadius: 8,
+    width: 280,
+    height: 200,
+    borderRadius: theme.borderRadius.sm,
     resizeMode: 'cover',
-    marginBottom: 8,
-    backgroundColor: '#eee',
-  },
-  path: {
-    fontSize: 10,
-    color: '#999',
-    textAlign: 'center',
-  },
-  demoButton: {
-    marginTop: 12,
-    backgroundColor: 'transparent',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#6200ee',
-  },
-  demoButtonText: {
-    color: '#6200ee',
-    fontSize: 14,
   },
 });
