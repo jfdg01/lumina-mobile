@@ -6,25 +6,27 @@ import { theme } from './styles/theme';
 import { ImageImporter } from './components/ImageImporter';
 import { AlignmentWorkspace } from './components/AlignmentWorkspace';
 import { 
-  loadProjectState, 
-  saveProjectState, 
+  loadCurrentProject, 
+  saveProject, 
   createNewProject,
-  clearProjectState,
+  clearCurrentProject,
   ProjectState,
   TransformState
 } from './services/StorageService';
+import { ProjectList } from './components/ProjectList';
 
 export default function App() {
   const [currentProject, setCurrentProject] = React.useState<ProjectState | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isProjectionMode, setIsProjectionMode] = React.useState(false);
+  const [isCreatingNew, setIsCreatingNew] = React.useState(false);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load saved project on app launch
   useEffect(() => {
     const loadSavedProject = async () => {
       try {
-        const savedProject = await loadProjectState();
+        const savedProject = await loadCurrentProject();
         if (savedProject) {
           setCurrentProject(savedProject);
         }
@@ -40,8 +42,10 @@ export default function App() {
   // Handle new image import - create new project
   const handleImageImported = useCallback(async (imageUri: string) => {
     const newProject = createNewProject(imageUri);
+    // Ask user for name? For now use default
+    await saveProject(newProject);
     setCurrentProject(newProject);
-    await saveProjectState(newProject);
+    setIsCreatingNew(false);
   }, []);
 
   // Handle transform changes with debounced save
@@ -61,14 +65,21 @@ export default function App() {
       clearTimeout(saveTimeoutRef.current);
     }
     saveTimeoutRef.current = setTimeout(async () => {
-      await saveProjectState(updatedProject);
+      await saveProject(updatedProject);
     }, 500);
   }, [currentProject]);
 
-  // Handle selecting a different image / clearing project
-  const handleClearProject = useCallback(async () => {
+  // Handle going back to project list
+  const handleExitProject = useCallback(async () => {
     setCurrentProject(null);
-    await clearProjectState();
+    await clearCurrentProject(); // Clear auto-resume
+    setIsCreatingNew(false);
+  }, []);
+
+  // Handle selecting a project from the list
+  const handleSelectProject = useCallback(async (project: ProjectState) => {
+    setCurrentProject(project);
+    await saveProject(project); // Updates "current" pointer and last modified
   }, []);
 
   // Cleanup save timeout on unmount
@@ -83,16 +94,12 @@ export default function App() {
   // Manage screen wake lock based on projection mode
   useEffect(() => {
     if (isProjectionMode) {
-      // Keep screen awake during projection
       activateKeepAwakeAsync().catch((error) => {
         console.warn('Failed to activate keep awake:', error);
       });
     } else {
-      // Allow screen to sleep in edit mode
       deactivateKeepAwake();
     }
-
-    // Cleanup: ensure wake lock is deactivated when component unmounts
     return () => {
       deactivateKeepAwake();
     };
@@ -114,25 +121,45 @@ export default function App() {
         <StatusBar hidden={isProjectionMode} barStyle="light-content" />
         
         {/* Workspace is absolutely positioned to fill entire screen */}
-        <View style={styles.workspaceAbsolute}>
-          {currentProject ? (
+        {currentProject && (
+          <View style={styles.workspaceAbsolute}>
             <AlignmentWorkspace 
               imageUri={currentProject.imageUri} 
               isProjectionMode={isProjectionMode}
               initialTransform={currentProject.transform}
               onTransformChange={handleTransformChange}
             />
-          ) : (
-            <ImageImporter onImageImported={handleImageImported} />
-          )}
-        </View>
+          </View>
+        )}
 
-        {/* Header overlay - only shown in Edit mode */}
-        {!isProjectionMode && (
+        {/* Dashboard / Project List / Importer - shown when no project active or creating new */}
+        {(!currentProject && !isCreatingNew) && (
+          <View style={styles.dashboardContainer}>
+             <ProjectList 
+               onSelectProject={handleSelectProject} 
+               onCreateNew={() => setIsCreatingNew(true)} 
+             />
+          </View>
+        )}
+
+        {(!currentProject && isCreatingNew) && (
+           <View style={styles.dashboardContainer}>
+             <ImageImporter onImageImported={handleImageImported} />
+             <TouchableOpacity 
+               style={styles.cancelButton} 
+               onPress={() => setIsCreatingNew(false)}
+             >
+               <Text style={styles.cancelButtonText}>Cancel</Text>
+             </TouchableOpacity>
+           </View>
+        )}
+
+        {/* Header overlay - only shown in Active Project Edit mode */}
+        {currentProject && !isProjectionMode && (
           <SafeAreaView style={styles.headerOverlay} pointerEvents="box-none">
             <View style={styles.headerContent}>
               <Text style={styles.title}>ProjectAlign</Text>
-              <Text style={styles.subtitle}>Digital Projector Assistant</Text>
+              <Text style={styles.subtitle}>{currentProject.name}</Text>
             </View>
           </SafeAreaView>
         )}
@@ -143,9 +170,9 @@ export default function App() {
             {!isProjectionMode && (
               <TouchableOpacity 
                 style={styles.backButton} 
-                onPress={handleClearProject}
+                onPress={handleExitProject}
               >
-                <Text style={styles.backButtonText}>Choose Different Image</Text>
+                <Text style={styles.backButtonText}>← Projects</Text>
               </TouchableOpacity>
             )}
 
@@ -247,5 +274,19 @@ const styles = StyleSheet.create({
     color: theme.colors.text,
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  dashboardContainer: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cancelButton: {
+    marginTop: 20,
+    padding: 10,
+  },
+  cancelButtonText: {
+    color: theme.colors.textMuted,
+    fontSize: 16,
   },
 });

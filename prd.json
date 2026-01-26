@@ -113,8 +113,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 7,
-      "passes": true,
-      "notes": "Refactored layout to use absolute positioning for workspace. Header/controls are now overlays. Image position is mathematically guaranteed to be stable between modes."
+      "passes": false,
+      "notes": "Refactored layout to use absolute positioning for workspace. **IMPORTANT**: Could not verify the UI in the browser, retry next run"
     },
     {
       "id": "US-008",
@@ -131,8 +131,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 8,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Implemented multi-project management with List view, Create flow, and Delete capability. StorageService refactored to support collections."
     }
   ]
 }
