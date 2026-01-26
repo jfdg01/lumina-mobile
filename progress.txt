@@ -2,6 +2,8 @@
 - FileSystem: Use `expo-file-system` modern API (`Paths`, `File`, `Directory`) as legacy API is deprecated/runtime-throwing.
 - Web support requires `react-dom` and `react-native-web` for browser verification.
 - Animations: Reanimated requires `babel.config.js` plugin, `babel-preset-expo`, and `GestureHandlerRootView` wrapping.
+- Persistence: Use `@react-native-async-storage/async-storage` for simple key-value storage (works on web and native).
+- Reanimated worklets: Use `runOnJS(fn)()` to call JS functions from gesture handler callbacks.
 
 ## 2026-01-26 - US-001
 - Implemented `ImageService` using `expo-file-system` v19+ API.
@@ -36,4 +38,19 @@
   - Conditional rendering in React Native for "modes" works well for projection-style apps.
   - `Gesture.Pan().enabled(false)` effectively disables interactions for projection safety.
   - Dimming the UI toggle in Projection Mode (low opacity) keeps it accessible but non-intrusive for projectors.
+---
+
+## 2026-01-26 - US-004
+- Created `StorageService.ts` with AsyncStorage integration for project persistence.
+- Defined `ProjectState` and `TransformState` interfaces for structured storage.
+- Updated `AlignmentWorkspace` to accept initial transform values and expose `onTransformChange` callback.
+- Updated `App.tsx` to load saved project on launch and auto-save transforms (debounced 500ms).
+- Added loading state handling during initial project restoration.
+- Files changed: `src/services/StorageService.ts` (new), `src/App.tsx`, `src/components/AlignmentWorkspace.tsx`
+- **Learnings for future iterations:**
+  - AsyncStorage works well on both web and native for simple key-value persistence.
+  - Debouncing saves (500ms) prevents excessive storage writes during rapid gesture updates.
+  - `runOnJS()` is required to call JS functions from Reanimated gesture handlers (worklet context).
+  - Project state includes: `id`, `imageUri`, `transform` (x, y, scale, rotation), `lastModified` timestamp.
+  - Loading state (`isLoading`) prevents UI flash when restoring saved project.
 ---
