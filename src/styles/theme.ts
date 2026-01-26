@@ -1,3 +1,6 @@
+/**
+ * @deprecated This theme is being replaced by Gluestack UI tokens and NativeWind classes.
+ */
 export const theme = {
   colors: {
     background: '#000000',
