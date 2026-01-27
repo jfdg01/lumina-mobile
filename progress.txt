@@ -11,5 +11,26 @@
 - App Structure: `src` is the root for source. `global.css` in `src`. `@` alias maps to `./src`.
 - Components: All components in `src/components`. Gluestack UI in `src/components/ui`.
 - Image Handling: Use Gluestack `Image` with `source` prop. For local images, `uri` works. `Image` component needs `size` (e.g., `2xl` or `none` + `className` for custom dimensions).
+- Storage: Use `StorageService` for all persistent operations to keep stores focused on runtime state.
+- Types: Centralize shared interfaces in `src/types/` to prevent circular dependencies.
 
+---
+
+## 2026-01-27 12:41 - US-001
+- Extracted persistence logic to StorageService.
+- Extracted undo/redo logic to history utility.
+- Centralized project types in src/types/project.ts.
+- Updated useProjectStore to use the new service and utility.
+- Updated AlignmentWorkspace and ProjectList to use centralized types.
+- **Learnings for future iterations:**
+  - StorageService avoids direct AsyncStorage usage in the store, making it easier to mock for tests.
+  - History utility encapsulates stack manipulation logic, keeping the store clean.
+  - Centralizing types prevents circular dependencies between store and services.
+---
+
+## 2026-01-27 12:48 - Fix Workspace Buttons
+- Fixed issue where buttons in AlignmentWorkspace were non-responsive.
+- Removed 'pointer-events-none' className from the main overlay container.
+- **Learnings for future iterations:**
+  - Avoid using Tailwind 'pointer-events-none' on containers with interactive children in React Native Web/Native. Use the 'pointerEvents="box-none"' prop instead, as it's specifically designed for this behavior.
 ---

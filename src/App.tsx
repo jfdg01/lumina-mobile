@@ -40,7 +40,6 @@ export default function App() {
   const [showSecondaryControls, setShowSecondaryControls] = React.useState(false);
   
   // Transitions
-  const headerOpacity = useSharedValue(0);
   const controlsOpacity = useSharedValue(0);
 
   // Load saved project on app launch
@@ -57,15 +56,9 @@ export default function App() {
     }
   }, [currentProject?.id]); // Only runs when project ID changes/loaded
 
-  // Update opacity values based on mode
   useEffect(() => {
-    headerOpacity.value = withTiming(currentProject && !isProjectionMode ? 1 : 0, { duration: 300 });
     controlsOpacity.value = withTiming(currentProject ? 1 : 0, { duration: 300 });
-  }, [currentProject, isProjectionMode]);
-
-  const animatedHeaderStyle = useAnimatedStyle(() => ({
-    opacity: headerOpacity.value,
-  }));
+  }, [currentProject]);
 
   const animatedControlsStyle = useAnimatedStyle(() => ({
     opacity: controlsOpacity.value,
@@ -158,16 +151,6 @@ export default function App() {
              </Box>
           )}
 
-          {currentProject && (
-            <Animated.View style={[animatedHeaderStyle, { position: 'absolute', top: 0, width: '100%', zIndex: 10 }]} pointerEvents="box-none">
-              <SafeAreaView edges={['top']} style={{ backgroundColor: 'transparent' }}>
-                <Center className="py-4 bg-black/80 border-b border-outline-100">
-                  <Heading size="2xl" className="text-typography-0 tracking-wide font-extrabold">ProjectAlign</Heading>
-                  <Text size="sm" className="text-primary-500 font-medium mt-0.5">{currentProject.name}</Text>
-                </Center>
-              </SafeAreaView>
-            </Animated.View>
-          )}
 
           {/* Controls are now handled inside AlignmentWorkspace */}
           </Box>
