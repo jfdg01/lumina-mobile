@@ -1,83 +1,83 @@
 {
   "project": "ProjectAlign",
-  "branchName": "ralph/ui-refactor",
-  "description": "UI Refactor & Design Simplification - Transition to a modular, component-based architecture with a flat design aesthetic powered by NativeWind.",
+  "branchName": "ralph/view-edit-mode-separation",
+  "description": "View/Edit Mode Separation - Refactor the project workspace to prevent accidental edits by defaulting to View Mode and requiring intentional activation of Edit Mode.",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Persistence & Business Logic Extraction",
-      "description": "As a developer, I want to move storage logic out of the store so that the store only manages runtime state.",
+      "title": "Default to View Mode on Project Open",
+      "description": "As a user, I want to open a project directly into View Mode so that I don't accidentally move or resize my aligned image.",
       "acceptanceCriteria": [
-        "Create src/services/StorageService.ts to handle all AsyncStorage operations",
-        "Update useProjectStore.ts to use StorageService",
-        "Extract complex transform calculations (undo/redo logic) into a helper utility if necessary",
-        "Typecheck passes"
+        "Opening a project routes to View Mode (no controls visible)",
+        "Image is displayed but not editable (pan/pinch/rotate gestures disabled)",
+        "Screen keeps awake while in View Mode",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
       ],
       "priority": 1,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-002",
-      "title": "Project Feature Refactor (Flat Design)",
-      "description": "As a user, I want a clean, flat list of my projects and a simple import screen.",
+      "title": "Long-Press to Reveal Controls",
+      "description": "As a user, I want to long-press (2 seconds) anywhere on the screen to reveal navigation controls so I can access options without accidentally editing.",
       "acceptanceCriteria": [
-        "Move ProjectList.tsx to src/components/projects/ProjectList/index.tsx",
-        "Extract ProjectCard into a separate component",
-        "Implement 'Flat Design': Remove gradients/glass effects; use solid backgrounds and crisp borders",
-        "Migrate ImageImporter.tsx to src/components/projects/ImageImporter.tsx",
-        "Remove all hardcoded styles; use only Tailwind classes",
+        "Long-pressing anywhere for 2 seconds reveals control overlay",
+        "Controls fade in with animation",
+        "Controls include: 'Back' button (returns to project list) and 'Edit' button (enters Edit Mode)",
+        "Tapping outside controls or pressing a 'hide' button hides controls again",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 2,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-003",
-      "title": "Alignment Workspace Modularization",
-      "description": "As a developer, I want to separate the complex gesture logic from the UI overlay in the workspace.",
+      "title": "Enter Edit Mode from Controls",
+      "description": "As a user, I want to tap an 'Edit' button from the revealed controls to enter Edit Mode where I can manipulate the image.",
       "acceptanceCriteria": [
-        "Move AlignmentWorkspace.tsx to src/components/workspace/",
-        "Create src/components/workspace/GestureHandler.tsx specifically for Reanimated/Gesture logic",
-        "Create src/components/workspace/WorkspaceControls.tsx for the UI overlays (buttons, menus)",
-        "Ensure AlignmentWorkspace acts as a clean orchestrator",
-        "Replace 'Glassmorphism' overlays with flat, high-contrast panels",
+        "'Edit' button is visible in the revealed controls overlay",
+        "Tapping 'Edit' enters Edit Mode with full editing controls (undo, redo, reset)",
+        "Image editing gestures (pan, pinch, rotate) are enabled in Edit Mode",
+        "Edit Mode shows visual indicator (dashed border around image)",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 3,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-004",
-      "title": "App Shell Simplification",
-      "description": "As a developer, I want App.tsx to focus strictly on routing and high-level state.",
+      "title": "Exit Edit Mode to View Mode",
+      "description": "As a user, I want to tap a 'Done' button to exit Edit Mode and return to View Mode so I can view my aligned image without risk of editing.",
       "acceptanceCriteria": [
-        "Move the Animated Header into src/components/ui/Header.tsx",
-        "Simplify navigation logic (Current Project vs. List vs. Importer)",
-        "Ensure any remaining inline styles or Animated.View style objects in App.tsx are migrated to Tailwind via className",
+        "'Done' button is visible in Edit Mode controls",
+        "Tapping 'Done' exits Edit Mode and returns to View Mode",
+        "Transform changes are saved before exiting Edit Mode",
+        "Controls are hidden upon returning to View Mode",
         "Typecheck passes",
         "Verify in browser using dev-browser skill"
       ],
       "priority": 4,
-      "passes": true,
+      "passes": false,
       "notes": ""
     },
     {
       "id": "US-005",
-      "title": "Global Style Purge",
-      "description": "As a developer, I want to ensure no StyleSheet or inline styles remain in the project.",
+      "title": "Remove Legacy Unlock/Project Toggle",
+      "description": "As a developer, I need to remove the old 'Unlock/Project' toggle button that conflates View and Edit modes.",
       "acceptanceCriteria": [
-        "Search and remove all instances of StyleSheet.create",
-        "Replace any remaining inline style={{ ... }} with NativeWind classes",
-        "Verify there are no regressions in layout or responsiveness",
-        "Typecheck and Lint pass"
+        "'Unlock/Project' button is removed from WorkspaceControls.tsx",
+        "Related state (isProjectionMode toggle logic) is refactored to new mode system",
+        "No TypeScript errors",
+        "Typecheck passes"
       ],
       "priority": 5,
-      "passes": true,
+      "passes": false,
       "notes": ""
     }
   ]

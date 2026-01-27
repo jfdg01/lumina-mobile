@@ -1,0 +1,84 @@
+## Codebase Patterns
+- FileSystem: Use `expo-file-system` modern API (`Paths`, `File`, `Directory`) as legacy API is deprecated/runtime-throwing.
+- Web support requires `react-dom` and `react-native-web` for browser verification.
+- Animations: Reanimated requires `babel.config.js` plugin, `babel-preset-expo`, and `GestureHandlerRootView` wrapping.
+- Persistence: Use `@react-native-async-storage/async-storage` for simple key-value storage (works on web and native).
+- Reanimated worklets: Use `runOnJS(fn)()` to call JS functions from gesture handler callbacks.
+- Wake Lock: Use `expo-keep-awake` with `activateKeepAwakeAsync`/`deactivateKeepAwake`. Always cleanup on unmount.
+- Global Gestures: Wrap the parent container (not the target element) with `GestureDetector` to capture gestures anywhere on screen.
+- Layout Stability: Use `absolute` positioning for workspaces that must remain static while UI overlays toggle on/off. Avoid flex-based layout shifts.
+- Storage Structure: For simple lists, use a "Collection" key (JSON object map) + "Current ID" key pattern. Avoid separate keys per item unless necessary for performance.
+- App Structure: `src` is the root for source. `global.css` in `src`. `@` alias maps to `./src`.
+- Components: All components in `src/components`. Gluestack UI in `src/components/ui`.
+- Image Handling: Use Gluestack `Image` with `source` prop. For local images, `uri` works. `Image` component needs `size` (e.g., `2xl` or `none` + `className` for custom dimensions).
+- Storage: Use `StorageService` for all persistent operations to keep stores focused on runtime state.
+- Types: Centralize shared interfaces in `src/types/` to prevent circular dependencies.
+- Flat Design: Use `rounded-none`, solid backgrounds, and high-contrast uppercase typography (`font-black`, `uppercase`) for a crisp aesthetic.
+- Feature Organization: Group related components in subdirectories (e.g., `src/components/projects/`) with an `index.tsx` entry point.
+- App Shell Navigation: Use a `renderContent` helper function in `App.tsx` to manage mutually exclusive views (List, Importer, Workspace) for better readability.
+- NativeWind: Use `contentContainerClassName` for ScrollView/FlatList content styling instead of `contentContainerStyle`.
+- NativeWind: `className` works on `Animated.View` (Reanimated) for static styles; keep `style` strictly for SharedValue animations.
+
+---
+
+## 2026-01-27 12:55 - US-002
+- Refactored Project List into modular components.
+- Extracted ProjectCard into a separate file.
+- Migrated ImageImporter to projects subdirectory.
+- Implemented "Flat Design" aesthetic across Project List and Image Importer.
+- Removed old component files and updated imports in App.tsx.
+- **Learnings for future iterations:**
+  - `rounded-none` combined with `border-b` creates a clean, list-like flat look.
+  - High-contrast headers (uppercase, extra-bold) improve readability in flat designs.
+  - Moving components to feature-grouped directories makes the `src/components` root less cluttered.
+---
+- Extracted persistence logic to StorageService.
+- Extracted undo/redo logic to history utility.
+- Centralized project types in src/types/project.ts.
+- Updated useProjectStore to use the new service and utility.
+- Updated AlignmentWorkspace and ProjectList to use centralized types.
+- **Learnings for future iterations:**
+  - StorageService avoids direct AsyncStorage usage in the store, making it easier to mock for tests.
+  - History utility encapsulates stack manipulation logic, keeping the store clean.
+  - Centralizing types prevents circular dependencies between store and services.
+---
+
+## 2026-01-27 12:48 - Fix Workspace Buttons
+- Fixed issue where buttons in AlignmentWorkspace were non-responsive.
+- Removed 'pointer-events-none' className from the main overlay container.
+- **Learnings for future iterations:**
+  - Avoid using Tailwind 'pointer-events-none' on containers with interactive children in React Native Web/Native. Use the 'pointerEvents="box-none"' prop instead, as it's specifically designed for this behavior.
+---
+
+## 2026-01-27 13:20 - US-003
+- Modularized AlignmentWorkspace into separate component files.
+- Created GestureHandler.tsx for gesture and reanimated logic.
+- Created WorkspaceControls.tsx for UI overlays.
+- Implemented "Flat Design" aesthetic for workspace controls (solid colors, rounded-none, high contrast).
+- Updated orchestrator to manage shared values and coordinate sub-components.
+- **Learnings for future iterations:**
+  - Separating gesture logic from UI controls reduces file complexity significantly and makes the orchestrator much cleaner.
+  - Passing SharedValues from the orchestrator to sub-components allows both gestures and UI controls (like Reset) to manipulate the same animation state.
+  - "Flat Design" with `rounded-none` and high-contrast colors (`bg-background-950`, `bg-primary-500`) provides a professional, "tools-first" look.
+---
+
+## 2026-01-27 13:45 - US-004
+- Formally extracted Header component to src/components/ui/Header.tsx.
+- Refactored ProjectList and ImageImporter to use the shared Header component.
+- Simplified App.tsx navigation using a renderContent function.
+- Removed unused Reanimated logic and manual styles from App.tsx.
+- Migrated remaining App.tsx styles to NativeWind classes.
+- **Learnings for future iterations:**
+  - Using a  helper in the main App component prevents "ternary hell" and makes the navigation logic much easier to read.
+  - Centralizing the Header ensures that padding (pt-12 for safe area) and typography (font-black, uppercase) remain consistent across the app.
+  - Always check for unused `useSharedValue` and `useAnimatedStyle` hooks when refactoring logic out of a component.
+---
+## 2026-01-27 14:10 - US-005
+- Removed all remaining inline styles in ProjectList, GestureHandler, and GluestackUIProvider.
+- Replaced StyleSheet.create with NativeWind utility classes.
+- Verified zero instances of StyleSheet.create remaining in src.
+- **Learnings for future iterations:**
+  - `contentContainerClassName` is the correct prop for NativeWind styling of FlatList's content container.
+  - Platform-specific styles (like `width: revert-layer` for web images) may still require inline styles or platform-specific styled components.
+  - `tsc` verification is crucial when converting styles to ensure no prop variations are missed.
+---
