@@ -197,7 +197,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
       </GestureDetector>
 
       {/* Workspace Overlays */}
-      <Box className="absolute inset-0 pointer-events-none" pointerEvents="box-none">
+      <Box className="absolute inset-0" pointerEvents="box-none">
         
         {/* Top Bar Controls */}
         {(!isProjectionMode || showSecondaryControls) && (
