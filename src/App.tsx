@@ -53,7 +53,7 @@ export default function App() {
     if (currentProject) {
        // Optional: Auto-enter projection mode or logic here if needed
        // Keeping existing behavior:
-       setIsProjectionMode(true);
+       setIsProjectionMode(false);
     }
   }, [currentProject?.id]); // Only runs when project ID changes/loaded
 
@@ -117,9 +117,20 @@ export default function App() {
               <AlignmentWorkspace 
                 imageUri={currentProject.imageUri} 
                 isProjectionMode={isProjectionMode}
+                showSecondaryControls={showSecondaryControls}
                 initialTransform={currentProject.transform}
                 onTransformChange={updateTransform}
                 onLongPress={() => isProjectionMode && setShowSecondaryControls(true)}
+                onUndo={undo}
+                onRedo={redo}
+                onExit={handleExitProject}
+                onToggleProjection={() => {
+                  setIsProjectionMode(!isProjectionMode);
+                  setShowSecondaryControls(false);
+                }}
+                onHideControls={() => setShowSecondaryControls(false)}
+                canUndo={undoStack.length > 0}
+                canRedo={redoStack.length > 0}
               />
             </Box>
           )}
@@ -158,71 +169,9 @@ export default function App() {
             </Animated.View>
           )}
 
-          {currentProject && (
-            <Animated.View style={[animatedControlsStyle, { position: 'absolute', inset: 0 }]} pointerEvents="box-none">
-              {(!isProjectionMode || showSecondaryControls) && (
-                <Button 
-                  action="secondary" 
-                  variant="outline" 
-                  className="absolute top-[60px] left-5 bg-background-900/90 border-outline-200"
-                  onPress={handleExitProject}
-                >
-                  <ButtonText className="text-typography-0 text-xs font-semibold">← Projects</ButtonText>
-                </Button>
-              )}
-
-              {!isProjectionMode && (
-                <HStack className="absolute top-[60px] right-5 gap-2">
-                  <Button 
-                    action="secondary" 
-                    variant="outline" 
-                    isDisabled={undoStack.length === 0}
-                    className={`bg-background-900/90 border-outline-200 ${undoStack.length === 0 ? 'opacity-20' : ''}`}
-                    onPress={undo}
-                  >
-                    <ButtonText className="text-typography-0 text-xs font-bold">Undo</ButtonText>
-                  </Button>
-                  <Button 
-                    action="secondary" 
-                    variant="outline" 
-                    isDisabled={redoStack.length === 0}
-                    className={`bg-background-900/90 border-outline-200 ${redoStack.length === 0 ? 'opacity-20' : ''}`}
-                    onPress={redo}
-                  >
-                    <ButtonText className="text-typography-0 text-xs font-bold">Redo</ButtonText>
-                  </Button>
-                </HStack>
-              )}
-
-              {isProjectionMode && showSecondaryControls && (
-                <Button 
-                  action="secondary" 
-                  variant="outline"
-                  className="absolute top-[60px] right-5 bg-background-900/80 border-outline-200" 
-                  onPress={() => setShowSecondaryControls(false)}
-                >
-                  <ButtonText className="text-typography-500 text-xs font-semibold">Hide Controls</ButtonText>
-                </Button>
-              )}
-
-              {(!isProjectionMode || showSecondaryControls) && (
-                <Button 
-                  action={isProjectionMode ? 'secondary' : 'primary'}
-                  className={`absolute bottom-10 left-5 rounded-full shadow-lg ${isProjectionMode ? 'bg-background-900/50 border border-outline-200' : 'bg-primary-500'}`}
-                  onPress={() => {
-                    setIsProjectionMode(!isProjectionMode);
-                    setShowSecondaryControls(false);
-                  }}
-                >
-                  <ButtonText className={`uppercase font-extrabold text-sm ${isProjectionMode ? 'text-typography-0' : 'text-black'}`}>
-                    {isProjectionMode ? (showSecondaryControls ? 'Lock Controls' : 'Unlock') : 'Project'}
-                  </ButtonText>
-                </Button>
-              )}
-            </Animated.View>
-          )}
-        </Box>
-      </GestureHandlerRootView>
+          {/* Controls are now handled inside AlignmentWorkspace */}
+          </Box>
+        </GestureHandlerRootView>
       </SafeAreaProvider>
     </GluestackUIProvider>
   );

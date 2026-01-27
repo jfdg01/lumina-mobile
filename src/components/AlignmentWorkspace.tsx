@@ -1,33 +1,64 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Image, Text, TouchableOpacity } from 'react-native';
+import { View, Image } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
   withSpring, 
-  withTiming,
-  runOnJS
+  runOnJS,
+  FadeIn,
+  FadeOut
 } from 'react-native-reanimated';
-import { theme } from '../styles/theme';
 import { TransformState } from '../store/useProjectStore';
+
+import { Box } from '@/components/ui/box';
+import { VStack } from '@/components/ui/vstack';
+import { HStack } from '@/components/ui/hstack';
+import { Text } from '@/components/ui/text';
+import { Button, ButtonText, ButtonIcon } from '@/components/ui/button';
+import { Pressable } from '@/components/ui/pressable';
+import { Icon } from '@/components/ui/icon';
+import { 
+  ChevronLeft, 
+  Undo2, 
+  Redo2, 
+  Maximize, 
+  Lock, 
+  EyeOff, 
+  RotateCcw 
+} from 'lucide-react-native';
 
 interface AlignmentWorkspaceProps {
   imageUri: string | null;
   isProjectionMode: boolean;
+  showSecondaryControls: boolean;
   initialTransform?: TransformState;
   onTransformChange?: (transform: TransformState) => void;
   onLongPress?: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  onExit?: () => void;
+  onToggleProjection?: () => void;
+  onHideControls?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
 }
 
 export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({ 
   imageUri, 
   isProjectionMode,
+  showSecondaryControls,
   initialTransform,
   onTransformChange,
-  onLongPress
+  onLongPress,
+  onUndo,
+  onRedo,
+  onExit,
+  onToggleProjection,
+  onHideControls,
+  canUndo = false,
+  canRedo = false,
 }) => {
-  const isInitialized = useRef(false);
-
   // Shared values for transformations
   const translationX = useSharedValue(initialTransform?.translationX ?? 0);
   const translationY = useSharedValue(initialTransform?.translationY ?? 0);
@@ -92,7 +123,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
     });
 
   const longPress = Gesture.LongPress()
-    .minDuration(2000)
+    .minDuration(1500) // Slightly shorter for better UX
     .onStart(() => {
       if (onLongPress) {
         runOnJS(onLongPress)();
@@ -121,7 +152,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
     savedScale.value = 1;
     rotation.value = withSpring(0);
     savedRotation.value = 0;
-    // Notify after reset with default values
+    
     if (onTransformChange) {
       onTransformChange({
         translationX: 0,
@@ -134,93 +165,118 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
 
   if (!imageUri) {
     return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>No image selected</Text>
-      </View>
+      <Box className="flex-1 justify-center items-center bg-background-950">
+        <Text className="text-typography-500 text-lg font-medium">No image selected</Text>
+      </Box>
     );
   }
 
+  const glassStyle = "bg-background-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-2 shadow-2xl overflow-hidden";
+  const iconButtonStyle = "w-12 h-12 rounded-xl items-center justify-center active:bg-white/10";
+
   return (
-    <View style={styles.container}>
+    <Box className="flex-1 w-full overflow-hidden bg-black">
       <GestureDetector gesture={composed}>
-        <Animated.View style={styles.workspace}>
+        <Animated.View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <Animated.View style={[
-            styles.imageContainer, 
+            {
+              width: 300,
+              height: 300,
+              justifyContent: 'center',
+              alignItems: 'center',
+            },
             animatedStyle,
-            !isProjectionMode && styles.editIndicator
+            !isProjectionMode && { borderStyle: 'dashed', borderWidth: 1, borderColor: '#3b82f6' }
           ]}>
             <Image 
               source={{ uri: imageUri }} 
-              style={styles.image} 
+              style={{ width: '100%', height: '100%' }} 
               resizeMode="contain" 
             />
           </Animated.View>
         </Animated.View>
       </GestureDetector>
 
-      {!isProjectionMode && (
-        <TouchableOpacity style={styles.resetButton} onPress={handleReset}>
-          <Text style={styles.resetButtonText}>Reset</Text>
-        </TouchableOpacity>
-      )}
-    </View>
+      {/* Workspace Overlays */}
+      <Box className="absolute inset-0 pointer-events-none" pointerEvents="box-none">
+        
+        {/* Top Bar Controls */}
+        {(!isProjectionMode || showSecondaryControls) && (
+          <HStack className="absolute top-12 left-5 right-5 justify-between items-center" pointerEvents="box-none">
+            {/* Exit/Back Button */}
+            <Box className={glassStyle} pointerEvents="auto">
+               <Pressable className={iconButtonStyle} onPress={onExit}>
+                 <Icon as={ChevronLeft} className="text-typography-0" size="xl" />
+               </Pressable>
+            </Box>
+
+            {/* Undo/Redo Group */}
+            {!isProjectionMode && (
+              <HStack className={glassStyle} pointerEvents="auto">
+                <Pressable 
+                  className={`${iconButtonStyle} ${!canUndo ? 'opacity-20' : ''}`} 
+                  onPress={onUndo}
+                  disabled={!canUndo}
+                >
+                  <Icon as={Undo2} className="text-typography-0" size="lg" />
+                </Pressable>
+                <Box className="w-[1px] h-8 bg-white/10 self-center" />
+                <Pressable 
+                  className={`${iconButtonStyle} ${!canRedo ? 'opacity-20' : ''}`} 
+                  onPress={onRedo}
+                  disabled={!canRedo}
+                >
+                  <Icon as={Redo2} className="text-typography-0" size="lg" />
+                </Pressable>
+              </HStack>
+            )}
+
+            {/* View Mode Indicator / Hide Controls (if in projection revealed) */}
+            {isProjectionMode && showSecondaryControls && (
+               <Box className={glassStyle} pointerEvents="auto">
+                 <Pressable className={iconButtonStyle} onPress={onHideControls}>
+                   <Icon as={EyeOff} className="text-typography-500" size="lg" />
+                 </Pressable>
+               </Box>
+            )}
+          </HStack>
+        )}
+
+        {/* Bottom Bar Controls */}
+        <HStack className="absolute bottom-10 left-5 right-5 justify-between items-end" pointerEvents="box-none">
+          {/* Projection Mode Toggle - Always accessible but subtle in projection mode */}
+          <Box 
+            className={`${glassStyle} transition-all duration-300 ${isProjectionMode && !showSecondaryControls ? 'opacity-20 scale-90 translate-y-2' : 'opacity-100'}`} 
+            pointerEvents="auto"
+          >
+            <Button 
+              onPress={onToggleProjection}
+              className={`h-14 px-6 rounded-xl ${isProjectionMode ? 'bg-transparent' : 'bg-primary-500'}`}
+              variant={isProjectionMode ? 'outline' : 'solid'}
+              action={isProjectionMode ? 'secondary' : 'primary'}
+            >
+              <ButtonIcon as={isProjectionMode ? Lock : Maximize} className={isProjectionMode ? "text-typography-0" : "text-black"} />
+              <ButtonText className={`ml-2 font-bold uppercase tracking-wider ${isProjectionMode ? 'text-typography-0' : 'text-black'}`}>
+                {isProjectionMode ? 'Unlock' : 'Project'}
+              </ButtonText>
+            </Button>
+          </Box>
+
+          {/* Reset / Helper Button - Only in Edit Mode or when controls are revealed */}
+          {(!isProjectionMode || showSecondaryControls) && (
+            <Animated.View 
+              entering={FadeIn.duration(300)}
+              exiting={FadeOut.duration(300)}
+            >
+              <Box className={glassStyle} pointerEvents="auto">
+                <Pressable className={iconButtonStyle} onPress={handleReset}>
+                  <Icon as={RotateCcw} className="text-typography-0" size="lg" />
+                </Pressable>
+              </Box>
+            </Animated.View>
+          )}
+        </HStack>
+      </Box>
+    </Box>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: '100%',
-    overflow: 'hidden',
-    backgroundColor: '#000', 
-  },
-  workspace: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: theme.colors.surface,
-  },
-  emptyText: {
-    color: theme.colors.textMuted,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  imageContainer: {
-    width: 300,
-    height: 300,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-  },
-  resetButton: {
-    position: 'absolute',
-    bottom: 40,
-    right: 20,
-    backgroundColor: 'rgba(20, 20, 20, 0.9)',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: theme.borderRadius.full,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  resetButtonText: {
-    color: theme.colors.text,
-    fontSize: 14,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-  },
-  editIndicator: {
-    borderStyle: 'dashed',
-    borderColor: theme.colors.primary,
-  },
-});
