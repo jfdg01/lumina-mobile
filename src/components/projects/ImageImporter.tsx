@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
 import { Alert } from 'react-native';
-import { pickImage, saveImageToSandbox } from '../services/ImageService';
-import { Box } from './ui/box';
-import { VStack } from './ui/vstack';
-import { Center } from './ui/center';
-import { Heading } from './ui/heading';
-import { Text } from './ui/text';
-import { Button, ButtonText } from './ui/button';
-import { Image } from './ui/image';
-import { Spinner } from './ui/spinner';
-// I'll skip Icon for now if not sure, or use a text char/standard icon if available. 
-// Gluestack v2+ usually has specific icons. I'll stick to text for buttons to be safe, or check imports.
-// Actually, I'll just use text for now to match safety.
+import { pickImage, saveImageToSandbox } from '@/services/ImageService';
+import { Box } from '@/components/ui/box';
+import { VStack } from '@/components/ui/vstack';
+import { Center } from '@/components/ui/center';
+import { Heading } from '@/components/ui/heading';
+import { Text } from '@/components/ui/text';
+import { Button, ButtonText } from '@/components/ui/button';
+import { Image } from '@/components/ui/image';
+import { Spinner } from '@/components/ui/spinner';
 
 interface ImageImporterProps {
   onImageImported?: (uri: string) => void;
@@ -26,7 +23,6 @@ export const ImageImporter: React.FC<ImageImporterProps> = ({ onImageImported })
     try {
       const uri = await pickImage();
       if (uri) {
-        // Simulate a small delay for better UX if needed, or just proceed
         const savedUri = await saveImageToSandbox(uri);
         setLastImportedUri(savedUri);
         if (onImageImported) {
@@ -45,7 +41,6 @@ export const ImageImporter: React.FC<ImageImporterProps> = ({ onImageImported })
     setIsLoading(true);
     try {
       const demoUri = 'https://picsum.photos/800/600';
-      // Simulate loading for demo
       await new Promise(resolve => setTimeout(resolve, 500));
       setLastImportedUri(demoUri);
       if (onImageImported) {
@@ -57,21 +52,23 @@ export const ImageImporter: React.FC<ImageImporterProps> = ({ onImageImported })
   };
 
   return (
-    <Box className="flex-1 bg-background-0 p-6 items-center w-full">
-      <Heading className="mb-8 mt-4 text-3xl font-bold tracking-wider text-typography-900">
-        New Project
-      </Heading>
+    <Box className="flex-1 bg-background-0">
+       <Box className="p-6 pt-12 border-b border-outline-100 mb-8">
+        <Heading className="text-left text-3xl font-black tracking-tighter uppercase text-typography-900">
+          New Project
+        </Heading>
+      </Box>
       
-      <VStack className="w-full gap-4 max-w-md">
+      <VStack className="px-6 gap-4 w-full max-w-md self-center">
         <Button 
           size="xl" 
           action="primary" 
           onPress={handleImport}
           isDisabled={isLoading}
-          className="rounded-full shadow-lg"
+          className="rounded-none h-16 border-2 border-primary-600"
         >
           {isLoading ? <Spinner color="white" className="mr-2" /> : null}
-          <ButtonText>Select from Gallery</ButtonText>
+          <ButtonText className="uppercase font-black tracking-widest">Select from Gallery</ButtonText>
         </Button>
         
         <Button 
@@ -80,23 +77,23 @@ export const ImageImporter: React.FC<ImageImporterProps> = ({ onImageImported })
           action="secondary" 
           onPress={handleUseDemoImage}
           isDisabled={isLoading}
-          className="rounded-full border-outline-300"
+          className="rounded-none h-16 border-2"
         >
-          <ButtonText>Try with Demo Image</ButtonText>
+          <ButtonText className="uppercase font-black tracking-widest">Test with Demo</ButtonText>
         </Button>
       </VStack>
       
       {lastImportedUri && (
-        <Center className="marginTop-12 w-full">
-          <Text className="text-xs text-primary-500 font-bold mb-2 uppercase tracking-[2px]">
+        <Center className="mt-12 w-full px-6">
+          <Text className="text-xs text-typography-400 font-black mb-4 uppercase tracking-[4px] self-start">
             Preview
           </Text>
-          <Box className="p-1 bg-background-100 rounded-md border border-outline-200 shadow-sm">
+          <Box className="w-full aspect-[4/3] bg-background-100 border-2 border-outline-200 overflow-hidden">
             <Image 
               source={{ uri: lastImportedUri }} 
               alt="Imported preview"
-              size="2xl"
-              className="rounded-sm object-cover h-56 w-72" 
+              size="none"
+              className="w-full h-full object-cover" 
             />
           </Box>
         </Center>

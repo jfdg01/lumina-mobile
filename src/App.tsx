@@ -5,10 +5,10 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import Animated, { useAnimatedStyle, withTiming, useSharedValue } from 'react-native-reanimated';
 // import { theme } from './styles/theme'; // Removed as unused in App.tsx
-import { ImageImporter } from './components/ImageImporter';
+import { ImageImporter } from './components/projects/ImageImporter';
 import { AlignmentWorkspace } from './components/AlignmentWorkspace';
 import { useProjectStore } from './store/useProjectStore';
-import { ProjectList } from './components/ProjectList';
+import { ProjectList } from './components/projects/ProjectList';
 
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
 import { Box } from '@/components/ui/box';

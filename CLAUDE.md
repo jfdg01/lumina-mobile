@@ -25,3 +25,10 @@
   - Use non-obvious triggers (e.g., Long Press) to reveal administrative/navigation controls in "Safe" or "Projection" modes on native.
   - For Web compatibility, ensure a subtle but visible toggle (e.g., low-opacity "Unlock" button) persists to allow keyboard/mouse users to exit locked states.
   - Implement a way to quickly hide these controls once revealed (e.g., "Hide Controls" button).
+- **Aesthetic (Flat Design)**:
+  - Use `rounded-none` or negligible rounding for containers and buttons.
+  - Prioritize solid backgrounds and sharp borders (`border-b`, `border-outline-100`).
+  - Use `font-black`, `uppercase`, and `tracking-widest` for primary headers and buttons.
+- **Organization**:
+  - Group feature-specific components in subdirectories (e.g., `src/components/projects/`).
+  - Use `index.tsx` as the main entry point for a component folder to simplify imports.

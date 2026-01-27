@@ -13,10 +13,22 @@
 - Image Handling: Use Gluestack `Image` with `source` prop. For local images, `uri` works. `Image` component needs `size` (e.g., `2xl` or `none` + `className` for custom dimensions).
 - Storage: Use `StorageService` for all persistent operations to keep stores focused on runtime state.
 - Types: Centralize shared interfaces in `src/types/` to prevent circular dependencies.
+- Flat Design: Use `rounded-none`, solid backgrounds, and high-contrast uppercase typography (`font-black`, `uppercase`) for a crisp aesthetic.
+- Feature Organization: Group related components in subdirectories (e.g., `src/components/projects/`) with an `index.tsx` entry point.
 
 ---
 
-## 2026-01-27 12:41 - US-001
+## 2026-01-27 12:55 - US-002
+- Refactored Project List into modular components.
+- Extracted ProjectCard into a separate file.
+- Migrated ImageImporter to projects subdirectory.
+- Implemented "Flat Design" aesthetic across Project List and Image Importer.
+- Removed old component files and updated imports in App.tsx.
+- **Learnings for future iterations:**
+  - `rounded-none` combined with `border-b` creates a clean, list-like flat look.
+  - High-contrast headers (uppercase, extra-bold) improve readability in flat designs.
+  - Moving components to feature-grouped directories makes the `src/components` root less cluttered.
+---
 - Extracted persistence logic to StorageService.
 - Extracted undo/redo logic to history utility.
 - Centralized project types in src/types/project.ts.
