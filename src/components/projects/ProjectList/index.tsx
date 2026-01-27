@@ -38,8 +38,8 @@ export const ProjectList: React.FC<ProjectListProps> = ({ onSelectProject, onCre
           data={projects}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ paddingBottom: 120 }}
-          style={{ flex: 1, width: '100%' }}
+          contentContainerClassName="pb-[120px]"
+          className="flex-1 w-full"
         />
       )}
 

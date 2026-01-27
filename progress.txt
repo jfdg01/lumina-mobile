@@ -16,6 +16,8 @@
 - Flat Design: Use `rounded-none`, solid backgrounds, and high-contrast uppercase typography (`font-black`, `uppercase`) for a crisp aesthetic.
 - Feature Organization: Group related components in subdirectories (e.g., `src/components/projects/`) with an `index.tsx` entry point.
 - App Shell Navigation: Use a `renderContent` helper function in `App.tsx` to manage mutually exclusive views (List, Importer, Workspace) for better readability.
+- NativeWind: Use `contentContainerClassName` for ScrollView/FlatList content styling instead of `contentContainerStyle`.
+- NativeWind: `className` works on `Animated.View` (Reanimated) for static styles; keep `style` strictly for SharedValue animations.
 
 ---
 
@@ -70,4 +72,13 @@
   - Using a  helper in the main App component prevents "ternary hell" and makes the navigation logic much easier to read.
   - Centralizing the Header ensures that padding (pt-12 for safe area) and typography (font-black, uppercase) remain consistent across the app.
   - Always check for unused `useSharedValue` and `useAnimatedStyle` hooks when refactoring logic out of a component.
+---
+## 2026-01-27 14:10 - US-005
+- Removed all remaining inline styles in ProjectList, GestureHandler, and GluestackUIProvider.
+- Replaced StyleSheet.create with NativeWind utility classes.
+- Verified zero instances of StyleSheet.create remaining in src.
+- **Learnings for future iterations:**
+  - `contentContainerClassName` is the correct prop for NativeWind styling of FlatList's content container.
+  - Platform-specific styles (like `width: revert-layer` for web images) may still require inline styles or platform-specific styled components.
+  - `tsc` verification is crucial when converting styles to ensure no prop variations are missed.
 ---

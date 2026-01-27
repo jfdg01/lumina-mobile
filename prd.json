@@ -77,7 +77,7 @@
         "Typecheck and Lint pass"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": ""
     }
   ]

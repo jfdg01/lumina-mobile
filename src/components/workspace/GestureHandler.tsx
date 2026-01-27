@@ -89,16 +89,8 @@ export const GestureHandler: React.FC<GestureHandlerProps> = ({
     <GestureDetector gesture={composed}>
       <Animated.View className="flex-1 justify-center items-center">
         <Animated.View 
-          style={[
-            {
-              width: 300,
-              height: 300,
-              justifyContent: 'center',
-              alignItems: 'center',
-            },
-            animatedStyle,
-            !isProjectionMode && { borderStyle: 'dashed', borderWidth: 1, borderColor: '#3b82f6' }
-          ]}
+          className={`w-[300px] h-[300px] justify-center items-center ${!isProjectionMode ? 'border-dashed border border-primary-500' : ''}`}
+          style={animatedStyle}
         >
           <Image 
             source={{ uri: imageUri }} 
