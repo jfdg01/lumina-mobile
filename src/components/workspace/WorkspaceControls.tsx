@@ -129,8 +129,8 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
           </Animated.View>
         )}
 
-        {/* Reset Button - only when controls visible */}
-        {showTopControls && (
+        {/* Reset Button - only in Edit Mode */}
+        {isEditMode && (
           <Animated.View 
             entering={FadeIn.duration(300)}
             exiting={FadeOut.duration(300)}
