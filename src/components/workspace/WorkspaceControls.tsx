@@ -15,12 +15,12 @@ import {
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 interface WorkspaceControlsProps {
-  isProjectionMode: boolean;
+  isEditMode: boolean;
   showSecondaryControls: boolean;
   onExit?: () => void;
   onUndo?: () => void;
   onRedo?: () => void;
-  onToggleProjection?: () => void;
+  onToggleEditMode?: () => void;
   onHideControls?: () => void;
   onReset: () => void;
   canUndo: boolean;
@@ -28,12 +28,12 @@ interface WorkspaceControlsProps {
 }
 
 export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
-  isProjectionMode,
+  isEditMode,
   showSecondaryControls,
   onExit,
   onUndo,
   onRedo,
-  onToggleProjection,
+  onToggleEditMode,
   onHideControls,
   onReset,
   canUndo,
@@ -45,7 +45,7 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
 
   // View Mode: controls hidden unless long-press reveals them
   // Edit Mode: controls always visible
-  const showTopControls = !isProjectionMode || showSecondaryControls;
+  const showTopControls = isEditMode || showSecondaryControls;
 
   return (
     <Box className="absolute inset-0" pointerEvents="box-none">
@@ -67,7 +67,7 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
             </Box>
 
             {/* Undo/Redo Group - only in Edit Mode */}
-            {!isProjectionMode && (
+            {isEditMode && (
               <HStack className={flatPanelStyle} pointerEvents="auto">
                 <Button 
                   className={`${iconButtonStyle} ${!canUndo ? 'opacity-20' : ''}`} 
@@ -90,7 +90,7 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
             )}
 
             {/* Hide Controls button - only in View Mode when controls revealed */}
-            {isProjectionMode && showSecondaryControls && (
+            {!isEditMode && showSecondaryControls && (
                <Box className={flatPanelStyle} pointerEvents="auto">
                  <Button className={iconButtonStyle} onPress={onHideControls} variant="link">
                    <ButtonIcon as={EyeOff} className="text-typography-500" size="lg" />
@@ -108,21 +108,21 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
         {/* View Mode with controls: Show "Edit" button */}
         {/* Edit Mode: Show "Done" button */}
         {/* View Mode without controls: Hidden */}
-        {(showSecondaryControls || !isProjectionMode) && (
+        {(showSecondaryControls || isEditMode) && (
           <Animated.View 
             entering={FadeIn.duration(300)}
             exiting={FadeOut.duration(300)}
           >
             <Box className={flatPanelStyle} pointerEvents="auto">
               <Button 
-                onPress={onToggleProjection}
+                onPress={onToggleEditMode}
                 className={primaryButtonStyle}
                 variant="solid"
                 action="primary"
               >
-                <ButtonIcon as={isProjectionMode ? Pencil : Check} className="text-black" />
+                <ButtonIcon as={!isEditMode ? Pencil : Check} className="text-black" />
                 <ButtonText className="ml-2 font-black uppercase tracking-wider text-black">
-                  {isProjectionMode ? 'Edit' : 'Done'}
+                  {!isEditMode ? 'Edit' : 'Done'}
                 </ButtonText>
               </Button>
             </Box>

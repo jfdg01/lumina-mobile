@@ -30,7 +30,7 @@ export default function App() {
     redo
   } = useProjectStore();
 
-  const [isProjectionMode, setIsProjectionMode] = React.useState(false);
+  const [isEditMode, setIsEditMode] = React.useState(false);
   const [isCreatingNew, setIsCreatingNew] = React.useState(false);
   const [showSecondaryControls, setShowSecondaryControls] = React.useState(false);
   
@@ -39,10 +39,10 @@ export default function App() {
     loadProjects();
   }, []);
 
-  // Sync projection mode when current project changes - default to View Mode
+  // Reset to View Mode when project changes - default to View Mode
   useEffect(() => {
     if (currentProject) {
-       setIsProjectionMode(true); // Default to View Mode (projection) to prevent accidental edits
+       setIsEditMode(false); // Default to View Mode to prevent accidental edits
     }
   }, [currentProject?.id]);
 
@@ -56,11 +56,12 @@ export default function App() {
   const handleExitProject = useCallback(async () => {
     await exitProject();
     setIsCreatingNew(false);
-    setIsProjectionMode(false); // Reset mode
+    setIsEditMode(false); // Reset mode
   }, [exitProject]);
 
+  // Keep screen awake in View Mode (when NOT editing)
   useEffect(() => {
-    if (isProjectionMode) {
+    if (!isEditMode) {
       activateKeepAwakeAsync().catch((error) => {
         console.warn('Failed to activate keep awake:', error);
       });
@@ -70,7 +71,7 @@ export default function App() {
     return () => {
       deactivateKeepAwake();
     };
-  }, [isProjectionMode]);
+  }, [isEditMode]);
 
   if (isLoading) {
     return (
@@ -85,16 +86,16 @@ export default function App() {
       return (
         <AlignmentWorkspace 
           imageUri={currentProject.imageUri} 
-          isProjectionMode={isProjectionMode}
+          isEditMode={isEditMode}
           showSecondaryControls={showSecondaryControls}
           initialTransform={currentProject.transform}
           onTransformChange={updateTransform}
-          onLongPress={() => isProjectionMode && setShowSecondaryControls(true)}
+          onLongPress={() => !isEditMode && setShowSecondaryControls(true)}
           onUndo={undo}
           onRedo={redo}
           onExit={handleExitProject}
-          onToggleProjection={() => {
-            setIsProjectionMode(!isProjectionMode);
+          onToggleEditMode={() => {
+            setIsEditMode(!isEditMode);
             setShowSecondaryControls(false);
           }}
           onHideControls={() => setShowSecondaryControls(false)}
@@ -132,8 +133,8 @@ export default function App() {
     <GluestackUIProvider mode="dark">
       <SafeAreaProvider>
         <GestureHandlerRootView className="flex-1">
-          <Box className={`flex-1 ${isProjectionMode ? 'bg-black' : 'bg-background-0'}`}>
-            <StatusBar hidden={isProjectionMode} barStyle="light-content" />
+          <Box className={`flex-1 ${!isEditMode ? 'bg-black' : 'bg-background-0'}`}>
+            <StatusBar hidden={!isEditMode} barStyle="light-content" />
             {renderContent()}
           </Box>
         </GestureHandlerRootView>

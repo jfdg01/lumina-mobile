@@ -9,7 +9,7 @@ import { WorkspaceControls } from './WorkspaceControls';
 
 interface AlignmentWorkspaceProps {
   imageUri: string | null;
-  isProjectionMode: boolean;
+  isEditMode: boolean;
   showSecondaryControls: boolean;
   initialTransform?: TransformState;
   onTransformChange?: (transform: TransformState) => void;
@@ -17,7 +17,7 @@ interface AlignmentWorkspaceProps {
   onUndo?: () => void;
   onRedo?: () => void;
   onExit?: () => void;
-  onToggleProjection?: () => void;
+  onToggleEditMode?: () => void;
   onHideControls?: () => void;
   canUndo?: boolean;
   canRedo?: boolean;
@@ -25,7 +25,7 @@ interface AlignmentWorkspaceProps {
 
 export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({ 
   imageUri, 
-  isProjectionMode,
+  isEditMode,
   showSecondaryControls,
   initialTransform,
   onTransformChange,
@@ -33,7 +33,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
   onUndo,
   onRedo,
   onExit,
-  onToggleProjection,
+  onToggleEditMode,
   onHideControls,
   canUndo = false,
   canRedo = false,
@@ -100,7 +100,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
     <Box className="flex-1 w-full overflow-hidden bg-black">
       <GestureHandler
         imageUri={imageUri}
-        isProjectionMode={isProjectionMode}
+        isEditMode={isEditMode}
         translationX={translationX}
         translationY={translationY}
         scale={scale}
@@ -112,12 +112,12 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
       />
 
       <WorkspaceControls
-        isProjectionMode={isProjectionMode}
+        isEditMode={isEditMode}
         showSecondaryControls={showSecondaryControls}
         onExit={onExit}
         onUndo={onUndo}
         onRedo={onRedo}
-        onToggleProjection={onToggleProjection}
+        onToggleEditMode={onToggleEditMode}
         onHideControls={onHideControls}
         onReset={handleReset}
         canUndo={canUndo}

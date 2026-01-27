@@ -10,7 +10,7 @@ import { Box } from '@/components/ui/box';
 
 interface GestureHandlerProps {
   imageUri: string;
-  isProjectionMode: boolean;
+  isEditMode: boolean;
   translationX: SharedValue<number>;
   translationY: SharedValue<number>;
   scale: SharedValue<number>;
@@ -23,7 +23,7 @@ interface GestureHandlerProps {
 
 export const GestureHandler: React.FC<GestureHandlerProps> = ({
   imageUri,
-  isProjectionMode,
+  isEditMode,
   translationX,
   translationY,
   scale,
@@ -35,7 +35,7 @@ export const GestureHandler: React.FC<GestureHandlerProps> = ({
 }) => {
   // Gesture definitions
   const pan = Gesture.Pan()
-    .enabled(!isProjectionMode)
+    .enabled(isEditMode)
     .onChange((event) => {
       translationX.value += event.changeX;
       translationY.value += event.changeY;
@@ -45,7 +45,7 @@ export const GestureHandler: React.FC<GestureHandlerProps> = ({
     });
 
   const pinch = Gesture.Pinch()
-    .enabled(!isProjectionMode)
+    .enabled(isEditMode)
     .onUpdate((event) => {
       scale.value = savedScale.value * event.scale;
     })
@@ -55,7 +55,7 @@ export const GestureHandler: React.FC<GestureHandlerProps> = ({
     });
 
   const rotate = Gesture.Rotation()
-    .enabled(!isProjectionMode)
+    .enabled(isEditMode)
     .onUpdate((event) => {
       rotation.value = savedRotation.value + event.rotation;
     })
@@ -89,7 +89,7 @@ export const GestureHandler: React.FC<GestureHandlerProps> = ({
     <GestureDetector gesture={composed}>
       <Animated.View className="flex-1 justify-center items-center">
         <Animated.View 
-          className={`w-[300px] h-[300px] justify-center items-center ${!isProjectionMode ? 'border-dashed border border-primary-500' : ''}`}
+          className={`w-[300px] h-[300px] justify-center items-center ${isEditMode ? 'border-dashed border border-primary-500' : ''}`}
           style={animatedStyle}
         >
           <Image 
