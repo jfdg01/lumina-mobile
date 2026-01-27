@@ -1,6 +1,7 @@
 import React from 'react';
 import { FlatList, Platform, Alert } from 'react-native';
-import { ProjectState, useProjectStore } from '../store/useProjectStore';
+import { ProjectState } from '@/types/project';
+import { useProjectStore } from '../store/useProjectStore';
 import { Box } from './ui/box';
 import { Text } from './ui/text';
 import { Heading } from './ui/heading';

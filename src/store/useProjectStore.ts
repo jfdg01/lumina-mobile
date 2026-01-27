@@ -1,23 +1,7 @@
 import { create } from 'zustand';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const PROJECTS_COLLECTION_KEY = '@projectalign/projects_collection';
-const CURRENT_PROJECT_ID_KEY = '@projectalign/current_project_id';
-
-export interface TransformState {
-  translationX: number;
-  translationY: number;
-  scale: number;
-  rotation: number;
-}
-
-export interface ProjectState {
-  id: string;
-  name: string;
-  imageUri: string;
-  transform: TransformState;
-  lastModified: number;
-}
+import { StorageService } from '@/services/StorageService';
+import { ProjectState, TransformState } from '@/types/project';
+import * as historyUtils from '@/utils/history';
 
 const DEFAULT_TRANSFORM: TransformState = {
   translationX: 0,
@@ -50,8 +34,6 @@ interface ProjectStore {
   syncCurrentProject: () => Promise<void>;
 }
 
-const MAX_HISTORY = 20;
-
 const generateProjectId = (): string => {
   return `project_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 };
@@ -77,11 +59,10 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
   loadProjects: async () => {
     set({ isLoading: true });
     try {
-      const projectsJson = await AsyncStorage.getItem(PROJECTS_COLLECTION_KEY);
-      const collection = projectsJson ? JSON.parse(projectsJson) as Record<string, ProjectState> : {};
+      const collection = await StorageService.getProjects();
       const projects = Object.values(collection).sort((a, b) => b.lastModified - a.lastModified);
       
-      const currentId = await AsyncStorage.getItem(CURRENT_PROJECT_ID_KEY);
+      const currentId = await StorageService.getCurrentProjectId();
       const currentProject = (currentId && collection[currentId]) ? collection[currentId] : null;
 
       set({ projects, currentProject, isLoading: false });
@@ -95,15 +76,10 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     try {
       const newProject = createNewProject(imageUri);
       
-      // Update in storage
-      const projectsJson = await AsyncStorage.getItem(PROJECTS_COLLECTION_KEY);
-      const collection: Record<string, ProjectState> = projectsJson ? JSON.parse(projectsJson) : {};
-      collection[newProject.id] = newProject;
-      
-      await AsyncStorage.setItem(PROJECTS_COLLECTION_KEY, JSON.stringify(collection));
-      await AsyncStorage.setItem(CURRENT_PROJECT_ID_KEY, newProject.id);
+      await StorageService.saveProject(newProject);
+      await StorageService.setCurrentProjectId(newProject.id);
 
-      // Update state
+      const collection = await StorageService.getProjects();
       const projects = Object.values(collection).sort((a, b) => b.lastModified - a.lastModified);
       
       set({ 
@@ -119,8 +95,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
   selectProject: async (project: ProjectState) => {
     try {
-      // Just mark as current in storage, saving the full object will happen on edit
-      await AsyncStorage.setItem(CURRENT_PROJECT_ID_KEY, project.id);
+      await StorageService.setCurrentProjectId(project.id);
       
       set({ 
         currentProject: project,
@@ -136,22 +111,13 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     try {
       const { currentProject } = get();
       
-      // Update in storage
-      const projectsJson = await AsyncStorage.getItem(PROJECTS_COLLECTION_KEY);
-      const collection: Record<string, ProjectState> = projectsJson ? JSON.parse(projectsJson) : {};
-      
-      if (collection[projectId]) {
-        delete collection[projectId];
-        await AsyncStorage.setItem(PROJECTS_COLLECTION_KEY, JSON.stringify(collection));
-      }
+      await StorageService.deleteProject(projectId);
 
-      // If deleting current project, clear it
       if (currentProject && currentProject.id === projectId) {
-        await AsyncStorage.removeItem(CURRENT_PROJECT_ID_KEY);
         set({ currentProject: null });
       }
 
-      // Update local list
+      const collection = await StorageService.getProjects();
       const projects = Object.values(collection).sort((a, b) => b.lastModified - a.lastModified);
       set({ projects });
     } catch (error) {
@@ -161,7 +127,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
   exitProject: async () => {
     try {
-      await AsyncStorage.removeItem(CURRENT_PROJECT_ID_KEY);
+      await StorageService.setCurrentProjectId(null);
       set({ currentProject: null });
     } catch (error) {
       console.error('Failed to exit project:', error);
@@ -172,11 +138,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     const { currentProject, undoStack } = get();
     if (!currentProject) return;
 
-    // Add current transform to undo stack
-    const newUndoStack = [...undoStack, currentProject.transform];
-    if (newUndoStack.length > MAX_HISTORY) {
-      newUndoStack.shift(); // Remove oldest
-    }
+    const newUndoStack = historyUtils.pushToHistory(undoStack, currentProject.transform);
 
     const updatedProject = {
       ...currentProject,
@@ -187,7 +149,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     set({
       currentProject: updatedProject,
       undoStack: newUndoStack,
-      redoStack: [] // Clear redo stack on new change
+      redoStack: []
     });
 
     get().syncCurrentProject();
@@ -195,23 +157,21 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
   undo: () => {
     const { currentProject, undoStack, redoStack } = get();
-    if (!currentProject || undoStack.length === 0) return;
+    if (!currentProject) return;
 
-    const previousTransform = undoStack[undoStack.length - 1];
-    const newUndoStack = undoStack.slice(0, -1);
-    
-    const newRedoStack = [...redoStack, currentProject.transform];
+    const result = historyUtils.undo(undoStack, currentProject.transform);
+    if (!result) return;
 
     const updatedProject = {
       ...currentProject,
-      transform: previousTransform,
+      transform: result.previous,
       lastModified: Date.now(),
     };
 
     set({
       currentProject: updatedProject,
-      undoStack: newUndoStack,
-      redoStack: newRedoStack
+      undoStack: result.newHistory,
+      redoStack: [...redoStack, result.redoItem]
     });
 
     get().syncCurrentProject();
@@ -219,23 +179,21 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
 
   redo: () => {
     const { currentProject, undoStack, redoStack } = get();
-    if (!currentProject || redoStack.length === 0) return;
+    if (!currentProject) return;
 
-    const nextTransform = redoStack[redoStack.length - 1];
-    const newRedoStack = redoStack.slice(0, -1);
-    
-    const newUndoStack = [...undoStack, currentProject.transform];
+    const result = historyUtils.redo(redoStack, currentProject.transform);
+    if (!result) return;
 
     const updatedProject = {
       ...currentProject,
-      transform: nextTransform,
+      transform: result.next,
       lastModified: Date.now(),
     };
 
     set({
       currentProject: updatedProject,
-      undoStack: newUndoStack,
-      redoStack: newRedoStack
+      undoStack: [...undoStack, result.undoItem],
+      redoStack: result.newRedoStack
     });
 
     get().syncCurrentProject();
@@ -245,17 +203,9 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     const { currentProject } = get();
     if (currentProject) {
       try {
-        const projectsJson = await AsyncStorage.getItem(PROJECTS_COLLECTION_KEY);
-        const collection: Record<string, ProjectState> = projectsJson ? JSON.parse(projectsJson) : {};
-        
-        collection[currentProject.id] = currentProject;
-        
-        // Save back
-        await AsyncStorage.setItem(PROJECTS_COLLECTION_KEY, JSON.stringify(collection));
-        
-        // Update local list
+        await StorageService.saveProject(currentProject);
+        const collection = await StorageService.getProjects();
         const projects = Object.values(collection).sort((a, b) => b.lastModified - a.lastModified);
-        
         set({ projects });
       } catch (error) {
         console.error('Failed to sync project:', error);
@@ -263,4 +213,3 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     }
   }
 }));
-

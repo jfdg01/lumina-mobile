@@ -17,7 +17,10 @@
   - Use `position: 'absolute'` for workspaces/canvases that must remain static while UI overlays toggle. flow-based layouts (flex) can cause unwanted shifts.
   - Avoid toggling `borderWidth` or `padding` for selection states; use transparent colors or overlays to maintain box-model geometry.
 - **Storage**:
+  - Use `StorageService` for all persistent operations; avoid direct `AsyncStorage` calls in components/stores.
   - Use "Collection" key (map) + "Current ID" key for simple multi-item state.
+- **Types**:
+  - Centralize core interface definitions in `src/types/` (e.g., `src/types/project.ts`) to avoid circular dependencies between services and stores.
 - **Interactions**:
   - Use non-obvious triggers (e.g., Long Press) to reveal administrative/navigation controls in "Safe" or "Projection" modes on native.
   - For Web compatibility, ensure a subtle but visible toggle (e.g., low-opacity "Unlock" button) persists to allow keyboard/mouse users to exit locked states.

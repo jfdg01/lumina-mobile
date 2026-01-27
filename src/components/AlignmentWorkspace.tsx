@@ -9,7 +9,7 @@ import Animated, {
   FadeIn,
   FadeOut
 } from 'react-native-reanimated';
-import { TransformState } from '../store/useProjectStore';
+import { TransformState } from '@/types/project';
 
 import { Box } from '@/components/ui/box';
 import { VStack } from '@/components/ui/vstack';
