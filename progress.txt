@@ -18,6 +18,7 @@
 - App Shell Navigation: Use a `renderContent` helper function in `App.tsx` to manage mutually exclusive views (List, Importer, Workspace) for better readability.
 - NativeWind: Use `contentContainerClassName` for ScrollView/FlatList content styling instead of `contentContainerStyle`.
 - NativeWind: `className` works on `Animated.View` (Reanimated) for static styles; keep `style` strictly for SharedValue animations.
+- Mode State: Use positive boolean names (e.g., `isEditMode`) over negated/inverted ones (e.g., `isProjectionMode`). Easier to reason about.
 
 ---
 
@@ -135,4 +136,16 @@
   - Together with US-003, the toggle mechanism (onToggleProjection) serves as both Edit entry and View Mode return.
   - Transforms don't need explicit save on mode exit because they're persisted on gesture end.
   - Controls visibility is managed by the combined boolean `showTopControls = !isProjectionMode || showSecondaryControls`.
+---
+
+## 2026-01-27 13:38 - US-005
+- Removed legacy 'Unlock/Project' toggle terminology from the codebase.
+- Refactored `isProjectionMode` → `isEditMode` across App.tsx, AlignmentWorkspace.tsx, GestureHandler.tsx, WorkspaceControls.tsx.
+- Refactored `onToggleProjection` → `onToggleEditMode` across all workspace components.
+- Logic inverted: `isEditMode=true` now means Edit Mode is active (positive semantics).
+- Files changed: App.tsx, AlignmentWorkspace.tsx, GestureHandler.tsx, WorkspaceControls.tsx
+- **Learnings for future iterations:**
+  - Prefer positive boolean names (`isEditMode`) over negative/confusing ones (`isProjectionMode`).
+  - When refactoring state names, update all related props through the component hierarchy consistently.
+  - Keep screen awake in View Mode (!isEditMode), not Edit Mode, since View Mode is for passive display.
 ---

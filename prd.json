@@ -77,8 +77,8 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Refactored isProjectionMode → isEditMode and onToggleProjection → onToggleEditMode across all workspace components. Legacy toggle terminology removed."
     },
     {
       "id": "US-006",
