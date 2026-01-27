@@ -6,7 +6,6 @@ module.exports = {
     './*.{html,js,jsx,ts,tsx,mdx}',
   ],
   presets: [require('nativewind/preset')],
-  important: 'html',
   safelist: [
     {
       pattern:
