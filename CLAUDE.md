@@ -31,4 +31,7 @@
   - Use `font-black`, `uppercase`, and `tracking-widest` for primary headers and buttons.
 - **Organization**:
   - Group feature-specific components in subdirectories (e.g., `src/components/projects/`).
-  - Use `index.tsx` as the main entry point for a component folder to simplify imports.
+  - Use \`index.tsx\` as the main entry point for a component folder to simplify imports.
+- **Workspace Modularization**: 
+  - Break down complex workspaces into \`GestureHandler.tsx\` (for Reanimated/Gesture logic) and \`WorkspaceControls.tsx\` (for UI overlays).
+  - Use an orchestrator component to manage shared state (like \`SharedValue\`) and coordinate between logic and UI.

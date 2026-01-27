@@ -46,3 +46,15 @@
 - **Learnings for future iterations:**
   - Avoid using Tailwind 'pointer-events-none' on containers with interactive children in React Native Web/Native. Use the 'pointerEvents="box-none"' prop instead, as it's specifically designed for this behavior.
 ---
+
+## 2026-01-27 13:20 - US-003
+- Modularized AlignmentWorkspace into separate component files.
+- Created GestureHandler.tsx for gesture and reanimated logic.
+- Created WorkspaceControls.tsx for UI overlays.
+- Implemented "Flat Design" aesthetic for workspace controls (solid colors, rounded-none, high contrast).
+- Updated orchestrator to manage shared values and coordinate sub-components.
+- **Learnings for future iterations:**
+  - Separating gesture logic from UI controls reduces file complexity significantly and makes the orchestrator much cleaner.
+  - Passing SharedValues from the orchestrator to sub-components allows both gestures and UI controls (like Reset) to manipulate the same animation state.
+  - "Flat Design" with `rounded-none` and high-contrast colors (`bg-background-950`, `bg-primary-500`) provides a professional, "tools-first" look.
+---
