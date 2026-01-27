@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Box } from '@/components/ui/box';
 import { HStack } from '@/components/ui/hstack';
 import { Button, ButtonText, ButtonIcon } from '@/components/ui/button';
@@ -39,6 +40,7 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
   canUndo,
   canRedo,
 }) => {
+  const insets = useSafeAreaInsets();
   const flatPanelStyle = "bg-background-950 border border-outline-800 rounded-none p-1 shadow-none overflow-hidden";
   const iconButtonStyle = "w-12 h-12 rounded-none items-center justify-center active:bg-background-800";
 
@@ -47,7 +49,16 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
   const showTopControls = isEditMode || showSecondaryControls;
 
   return (
-    <Box className="absolute inset-0" pointerEvents="box-none">
+    <Box 
+      className="absolute" 
+      style={{
+        top: insets.top,
+        bottom: insets.bottom,
+        left: insets.left,
+        right: insets.right,
+      }}
+      pointerEvents="box-none"
+    >
       
       {/* Top Bar Controls - animated in View Mode */}
       {showTopControls && (

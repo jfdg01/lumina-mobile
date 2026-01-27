@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSharedValue, withSpring, runOnJS } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { TransformState } from '@/types/project';
 import { Box } from '@/components/ui/box';
 import { Text } from '@/components/ui/text';
@@ -133,7 +133,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
   }
 
   return (
-    <SafeAreaView className="flex-1 w-full overflow-hidden bg-black" edges={['top', 'bottom', 'left', 'right']}>
+    <Box className="flex-1 w-full overflow-hidden bg-black">
       <GestureHandler
         imageUri={imageUri}
         isEditMode={isEditMode}
@@ -160,6 +160,6 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
         canUndo={canUndo}
         canRedo={canRedo}
       />
-    </SafeAreaView>
+    </Box>
   );
 };
