@@ -33,5 +33,9 @@
   - Group feature-specific components in subdirectories (e.g., `src/components/projects/`).
   - Use \`index.tsx\` as the main entry point for a component folder to simplify imports.
 - **Workspace Modularization**: 
-  - Break down complex workspaces into \`GestureHandler.tsx\` (for Reanimated/Gesture logic) and \`WorkspaceControls.tsx\` (for UI overlays).
-  - Use an orchestrator component to manage shared state (like \`SharedValue\`) and coordinate between logic and UI.
+  - Break down complex workspaces into `GestureHandler.tsx` (for Reanimated/Gesture logic) and `WorkspaceControls.tsx` (for UI overlays).
+  - Use an orchestrator component to manage shared state (like `SharedValue`) and coordinate between logic and UI.
+- **App Shell**:
+  - Keep `App.tsx` focused on high-level navigation and state.
+  - Use a `renderContent` helper to handle mutually exclusive top-level views (e.g., List vs. Editor vs. Importer) to avoid nested ternary hell.
+  - Unify headers using a shared `Header` component in `src/components/ui/Header.tsx` to maintain consistent branding and spacing across features.

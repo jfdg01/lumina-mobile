@@ -6,6 +6,7 @@ import { Box } from '@/components/ui/box';
 import { Text } from '@/components/ui/text';
 import { Heading } from '@/components/ui/heading';
 import { Button, ButtonText } from '@/components/ui/button';
+import { Header } from '@/components/ui/Header';
 import { ProjectCard } from './ProjectCard';
 
 interface ProjectListProps {
@@ -26,11 +27,7 @@ export const ProjectList: React.FC<ProjectListProps> = ({ onSelectProject, onCre
 
   return (
     <Box className="flex-1 w-full bg-background-0">
-      <Box className="p-6 pt-12 border-b border-outline-100">
-        <Heading size="3xl" className="text-left text-typography-900 font-black tracking-tighter uppercase">
-          Projects
-        </Heading>
-      </Box>
+      <Header title="Projects" />
       
       {projects.length === 0 && !isLoading ? (
         <Box className="flex-1 justify-center items-center p-10">

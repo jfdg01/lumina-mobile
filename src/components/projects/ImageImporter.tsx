@@ -10,6 +10,8 @@ import { Button, ButtonText } from '@/components/ui/button';
 import { Image } from '@/components/ui/image';
 import { Spinner } from '@/components/ui/spinner';
 
+import { Header } from '@/components/ui/Header';
+
 interface ImageImporterProps {
   onImageImported?: (uri: string) => void;
 }
@@ -53,11 +55,7 @@ export const ImageImporter: React.FC<ImageImporterProps> = ({ onImageImported })
 
   return (
     <Box className="flex-1 bg-background-0">
-       <Box className="p-6 pt-12 border-b border-outline-100 mb-8">
-        <Heading className="text-left text-3xl font-black tracking-tighter uppercase text-typography-900">
-          New Project
-        </Heading>
-      </Box>
+      <Header title="New Project" className="mb-8" />
       
       <VStack className="px-6 gap-4 w-full max-w-md self-center">
         <Button 
