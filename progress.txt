@@ -108,3 +108,17 @@
   - Wrap entire control sections in `Animated.View` with `FadeIn`/`FadeOut` for smooth reveal.
   - Extract `showTopControls` boolean to simplify conditional rendering.
 ---
+
+## 2026-01-27 14:33 - US-003
+- Verified "Enter Edit Mode from Controls" story implementation was already complete.
+- Edit button visible in revealed controls overlay (line 117-127 WorkspaceControls.tsx)
+- Tapping Edit sets isProjectionMode=false via onToggleProjection (App.tsx line 96-99)
+- Undo/Redo controls appear when !isProjectionMode (WorkspaceControls.tsx line 70-90)
+- Pan/Pinch/Rotate gestures enabled with .enabled(!isProjectionMode) (GestureHandler.tsx lines 37-65)
+- Dashed border visual indicator applied in Edit Mode (GestureHandler.tsx line 92)
+- TypeScript verification passed (npx tsc --noEmit)
+- Files reviewed: WorkspaceControls.tsx, GestureHandler.tsx, AlignmentWorkspace.tsx, App.tsx
+- **Learnings for future iterations:**
+  - Sometimes acceptance criteria are already met by previous work - always review existing code before implementing
+  - The isProjectionMode flag controls both gesture enabling and visual indicators simultaneously
+---

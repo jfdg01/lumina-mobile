@@ -47,8 +47,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 3,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Verified - Edit button in controls triggers Edit Mode with undo/redo/reset controls, enabled gestures, and dashed border visual indicator"
     },
     {
       "id": "US-004",
@@ -77,6 +77,22 @@
         "Typecheck passes"
       ],
       "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Move Reset Button to Edit Mode Only",
+      "description": "As a user, I want the Reset button to only appear in Edit Mode so that I cannot accidentally reset my image alignment from the View Mode controls overlay.",
+      "acceptanceCriteria": [
+        "Reset button is NOT visible in View Mode controls overlay (long-press reveal)",
+        "Reset button IS visible only when in Edit Mode",
+        "Reset functionality remains unchanged (resets image transform to default)",
+        "Confirmation dialog still appears before resetting",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
       "passes": false,
       "notes": ""
     }
