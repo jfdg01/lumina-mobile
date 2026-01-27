@@ -65,7 +65,7 @@ export const GestureHandler: React.FC<GestureHandlerProps> = ({
     });
 
   const longPress = Gesture.LongPress()
-    .minDuration(1500)
+    .minDuration(2000)
     .onStart(() => {
       if (onLongPress) {
         runOnJS(onLongPress)();

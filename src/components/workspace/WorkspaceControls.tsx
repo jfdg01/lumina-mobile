@@ -7,8 +7,9 @@ import {
   Undo2, 
   Redo2, 
   Maximize, 
-  Lock, 
-  EyeOff, 
+  EyeOff,
+  Pencil,
+  Check,
   RotateCcw 
 } from 'lucide-react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
@@ -42,75 +43,94 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
   const iconButtonStyle = "w-12 h-12 rounded-none items-center justify-center active:bg-background-800";
   const primaryButtonStyle = "h-14 px-6 rounded-none bg-primary-500 active:bg-primary-600";
 
+  // View Mode: controls hidden unless long-press reveals them
+  // Edit Mode: controls always visible
+  const showTopControls = !isProjectionMode || showSecondaryControls;
+
   return (
     <Box className="absolute inset-0" pointerEvents="box-none">
       
-      {/* Top Bar Controls */}
-      {(!isProjectionMode || showSecondaryControls) && (
-        <HStack className="absolute top-12 left-5 right-5 justify-between items-center" pointerEvents="box-none">
-          {/* Exit/Back Button */}
-          <Box className={flatPanelStyle} pointerEvents="auto">
-             <Button className={iconButtonStyle} onPress={onExit} variant="link">
-               <ButtonIcon as={ChevronLeft} className="text-typography-0" size="xl" />
-             </Button>
-          </Box>
-
-          {/* Undo/Redo Group */}
-          {!isProjectionMode && (
-            <HStack className={flatPanelStyle} pointerEvents="auto">
-              <Button 
-                className={`${iconButtonStyle} ${!canUndo ? 'opacity-20' : ''}`} 
-                onPress={onUndo}
-                disabled={!canUndo}
-                variant="link"
-              >
-                <ButtonIcon as={Undo2} className="text-typography-0" size="lg" />
-              </Button>
-              <Box className="w-[1px] h-8 bg-outline-800 self-center" />
-              <Button 
-                className={`${iconButtonStyle} ${!canRedo ? 'opacity-20' : ''}`} 
-                onPress={onRedo}
-                disabled={!canRedo}
-                variant="link"
-              >
-                <ButtonIcon as={Redo2} className="text-typography-0" size="lg" />
-              </Button>
-            </HStack>
-          )}
-
-          {/* View Mode Indicator / Hide Controls (if in projection revealed) */}
-          {isProjectionMode && showSecondaryControls && (
-             <Box className={flatPanelStyle} pointerEvents="auto">
-               <Button className={iconButtonStyle} onPress={onHideControls} variant="link">
-                 <ButtonIcon as={EyeOff} className="text-typography-500" size="lg" />
+      {/* Top Bar Controls - animated in View Mode */}
+      {showTopControls && (
+        <Animated.View 
+          entering={FadeIn.duration(300)}
+          exiting={FadeOut.duration(300)}
+          className="absolute top-12 left-5 right-5"
+          pointerEvents="box-none"
+        >
+          <HStack className="justify-between items-center" pointerEvents="box-none">
+            {/* Exit/Back Button */}
+            <Box className={flatPanelStyle} pointerEvents="auto">
+               <Button className={iconButtonStyle} onPress={onExit} variant="link">
+                 <ButtonIcon as={ChevronLeft} className="text-typography-0" size="xl" />
                </Button>
-             </Box>
-          )}
-        </HStack>
+            </Box>
+
+            {/* Undo/Redo Group - only in Edit Mode */}
+            {!isProjectionMode && (
+              <HStack className={flatPanelStyle} pointerEvents="auto">
+                <Button 
+                  className={`${iconButtonStyle} ${!canUndo ? 'opacity-20' : ''}`} 
+                  onPress={onUndo}
+                  disabled={!canUndo}
+                  variant="link"
+                >
+                  <ButtonIcon as={Undo2} className="text-typography-0" size="lg" />
+                </Button>
+                <Box className="w-[1px] h-8 bg-outline-800 self-center" />
+                <Button 
+                  className={`${iconButtonStyle} ${!canRedo ? 'opacity-20' : ''}`} 
+                  onPress={onRedo}
+                  disabled={!canRedo}
+                  variant="link"
+                >
+                  <ButtonIcon as={Redo2} className="text-typography-0" size="lg" />
+                </Button>
+              </HStack>
+            )}
+
+            {/* Hide Controls button - only in View Mode when controls revealed */}
+            {isProjectionMode && showSecondaryControls && (
+               <Box className={flatPanelStyle} pointerEvents="auto">
+                 <Button className={iconButtonStyle} onPress={onHideControls} variant="link">
+                   <ButtonIcon as={EyeOff} className="text-typography-500" size="lg" />
+                 </Button>
+               </Box>
+            )}
+          </HStack>
+        </Animated.View>
       )}
 
       {/* Bottom Bar Controls */}
       <HStack className="absolute bottom-10 left-5 right-5 justify-between items-end" pointerEvents="box-none">
-        {/* Projection Mode Toggle */}
-        <Box 
-          className={`${flatPanelStyle} transition-all duration-300 ${isProjectionMode && !showSecondaryControls ? 'opacity-20 scale-90 translate-y-2' : 'opacity-100'}`} 
-          pointerEvents="auto"
-        >
-          <Button 
-            onPress={onToggleProjection}
-            className={primaryButtonStyle}
-            variant="solid"
-            action="primary"
+        
+        {/* Mode Action Button */}
+        {/* View Mode with controls: Show "Edit" button */}
+        {/* Edit Mode: Show "Done" button */}
+        {/* View Mode without controls: Hidden */}
+        {(showSecondaryControls || !isProjectionMode) && (
+          <Animated.View 
+            entering={FadeIn.duration(300)}
+            exiting={FadeOut.duration(300)}
           >
-            <ButtonIcon as={isProjectionMode ? Lock : Maximize} className="text-black" />
-            <ButtonText className="ml-2 font-black uppercase tracking-wider text-black">
-              {isProjectionMode ? 'Unlock' : 'Project'}
-            </ButtonText>
-          </Button>
-        </Box>
+            <Box className={flatPanelStyle} pointerEvents="auto">
+              <Button 
+                onPress={onToggleProjection}
+                className={primaryButtonStyle}
+                variant="solid"
+                action="primary"
+              >
+                <ButtonIcon as={isProjectionMode ? Pencil : Check} className="text-black" />
+                <ButtonText className="ml-2 font-black uppercase tracking-wider text-black">
+                  {isProjectionMode ? 'Edit' : 'Done'}
+                </ButtonText>
+              </Button>
+            </Box>
+          </Animated.View>
+        )}
 
-        {/* Reset Button */}
-        {(!isProjectionMode || showSecondaryControls) && (
+        {/* Reset Button - only when controls visible */}
+        {showTopControls && (
           <Animated.View 
             entering={FadeIn.duration(300)}
             exiting={FadeOut.duration(300)}
@@ -126,3 +146,4 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
     </Box>
   );
 };
+

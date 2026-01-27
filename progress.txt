@@ -82,3 +82,29 @@
   - Platform-specific styles (like `width: revert-layer` for web images) may still require inline styles or platform-specific styled components.
   - `tsc` verification is crucial when converting styles to ensure no prop variations are missed.
 ---
+
+## 2026-01-27 13:25 - US-001
+- Implemented View Mode as the default when opening a project.
+- Changed `App.tsx` to set `isProjectionMode = true` when a project is selected or created.
+- This prevents accidental edits by disabling pan/pinch/rotate gestures on project open.
+- Screen keeps awake in View Mode via existing `expo-keep-awake` logic.
+- **Learnings for future iterations:**
+  - The `isProjectionMode` state controls both gesture enabling and the keep-awake behavior.
+  - Editing mode is now explicitly entered via the "Unlock" button, which sets `isProjectionMode = false`.
+---
+
+## 2026-01-27 13:28 - US-002
+- Implemented long-press (2 seconds) to reveal controls in View Mode.
+- Updated `GestureHandler.tsx`: changed `minDuration` from 1500ms to 2000ms.
+- Updated `WorkspaceControls.tsx`: 
+  - Added `FadeIn`/`FadeOut` animations to all controls in View Mode overlay.
+  - Replaced "Unlock/Project" button with "Edit/Done" button.
+  - In View Mode with controls revealed: shows "Edit" button (Pencil icon).
+  - In Edit Mode: shows "Done" button (Check icon).
+  - Controls are completely hidden in View Mode until long-press.
+- Files changed: `GestureHandler.tsx`, `WorkspaceControls.tsx`
+- **Learnings for future iterations:**
+  - Use `Pencil` and `Check` icons from lucide for Edit/Done actions.
+  - Wrap entire control sections in `Animated.View` with `FadeIn`/`FadeOut` for smooth reveal.
+  - Extract `showTopControls` boolean to simplify conditional rendering.
+---

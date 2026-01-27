@@ -15,8 +15,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 1,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Completed - projects now default to View Mode (projection mode) on open"
     },
     {
       "id": "US-002",
@@ -31,8 +31,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Completed - 2-second long-press reveals animated controls with Back, Edit, Hide, and Reset buttons"
     },
     {
       "id": "US-003",
