@@ -149,3 +149,15 @@
   - When refactoring state names, update all related props through the component hierarchy consistently.
   - Keep screen awake in View Mode (!isEditMode), not Edit Mode, since View Mode is for passive display.
 ---
+
+## 2026-01-27 13:42 - US-006
+- Moved Reset button to Edit Mode only.
+- Changed condition in `WorkspaceControls.tsx` from `showTopControls` to `isEditMode` (line 133).
+- Reset button is now hidden in View Mode controls overlay (long-press reveal).
+- Reset button still visible in Edit Mode with confirmation dialog unchanged.
+- TypeScript verification passed (npx tsc --noEmit).
+- Files changed: WorkspaceControls.tsx
+- **Learnings for future iterations:**
+  - Simple conditional changes (`showTopControls` → `isEditMode`) are low-risk and don't require extensive code review.
+  - The `showTopControls` boolean combines both View Mode + controls revealed AND Edit Mode, so specific Edit Mode checks need `isEditMode` directly.
+---

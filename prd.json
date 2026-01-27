@@ -93,8 +93,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 6,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Completed - Changed Reset button condition from showTopControls to isEditMode in WorkspaceControls.tsx. Reset now only visible in Edit Mode."
     }
   ]
 }
