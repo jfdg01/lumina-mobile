@@ -1,5 +1,5 @@
 {
-  "project": "ProjectAlign",
+  "project": "Lumina",
   "branchName": "ralph/view-edit-mode-separation",
   "description": "View/Edit Mode Separation - Refactor the project workspace to prevent accidental edits by defaulting to View Mode and requiring intentional activation of Edit Mode.",
   "userStories": [

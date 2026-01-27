@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Proyector",
-    "slug": "proyector",
+    "name": "Lumina",
+    "slug": "lumina",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -22,7 +22,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.jfdg01.proyector"
+      "package": "com.jfdg01.lumina"
     },
     "web": {
       "favicon": "./assets/favicon.png"
