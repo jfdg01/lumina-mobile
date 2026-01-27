@@ -10,6 +10,18 @@
 - Storage Structure: For simple lists, use a "Collection" key (JSON object map) + "Current ID" key pattern. Avoid separate keys per item unless necessary for performance.
 - App Structure: `src` is the root for source. `global.css` in `src`. `@` alias maps to `./src`.
 - Components: All components in `src/components`. Gluestack UI in `src/components/ui`.
+- Image Handling: Use Gluestack `Image` with `source` prop. For local images, `uri` works. `Image` component needs `size` (e.g., `2xl` or `none` + `className` for custom dimensions).
+## 2026-01-27 02:20 - US-004
+- Refactored `ImageImporter.tsx`.
+- Installed missing Gluestack components: `spinner`, `image`.
+- Replaced Native components with `Box`, `VStack`, `Center`, `Heading`, `Text`, `Button`, `Image`, `Spinner`.
+- Added `isLoading` state for import process.
+- Verified appearance and transition in browser (screenshot captured).
+- Typecheck passed.
+**Learnings for future iterations:**
+- Missing Gluestack components can be added via `npx gluestack-ui add [component-name]`.
+- Always check `src/components/ui` to see what is already installed.
+- Gluestack `Image` component uses `source` prop compatible with RN Image.
 ## 2026-01-27 01:45 - US-003
 - Refactored `ProjectList.tsx` to use Gluestack UI components (`Box`, `Text`, `Heading`, `Button`, `VStack`, `HStack`).
 - Replaced custom StyleSheet with NativeWind utility classes.
