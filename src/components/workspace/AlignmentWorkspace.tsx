@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSharedValue, withSpring, runOnJS } from 'react-native-reanimated';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { TransformState } from '@/types/project';
 import { Box } from '@/components/ui/box';
 import { Text } from '@/components/ui/text';
@@ -126,13 +127,13 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
   if (!imageUri) {
     return (
       <Box className="flex-1 justify-center items-center bg-background-950">
-        <Text className="text-typography-500 text-lg font-medium">No image selected</Text>
+        <Text className="text-typography-500 text-lg font-medium">Ninguna imagen seleccionada</Text>
       </Box>
     );
   }
 
   return (
-    <Box className="flex-1 w-full overflow-hidden bg-black">
+    <SafeAreaView className="flex-1 w-full overflow-hidden bg-black" edges={['top', 'bottom', 'left', 'right']}>
       <GestureHandler
         imageUri={imageUri}
         isEditMode={isEditMode}
@@ -159,6 +160,6 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
         canUndo={canUndo}
         canRedo={canRedo}
       />
-    </Box>
+    </SafeAreaView>
   );
 };

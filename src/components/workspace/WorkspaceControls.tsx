@@ -54,7 +54,7 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
         <Animated.View 
           entering={FadeIn.duration(300)}
           exiting={FadeOut.duration(300)}
-          className="absolute top-12 left-5 right-5"
+          className="absolute top-2 left-5 right-5"
           pointerEvents="box-none"
         >
           <HStack className="justify-between items-center" pointerEvents="box-none">
@@ -62,7 +62,7 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
             <Box className={flatPanelStyle} pointerEvents="auto">
                <Button className="h-12 px-4 rounded-none flex-row items-center justify-center active:bg-background-800" onPress={onExit} variant="link">
                  <ButtonIcon as={ChevronLeft} className="text-typography-0" size="xl" />
-                 <ButtonText className="ml-1 text-typography-0 font-medium">Back</ButtonText>
+                 <ButtonText className="ml-1 text-typography-0 font-medium">Volver</ButtonText>
                </Button>
             </Box>
 
@@ -99,7 +99,7 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
               >
                 <ButtonIcon as={!isEditMode ? Pencil : Check} className="text-black" />
                 <ButtonText className="ml-2 font-bold uppercase tracking-wider text-black">
-                  {!isEditMode ? 'Edit' : 'Done'}
+                  {!isEditMode ? 'Editar' : 'Listo'}
                 </ButtonText>
               </Button>
             </Box>
@@ -108,7 +108,7 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
       )}
 
       {/* Bottom Bar Controls */}
-      <HStack className="absolute bottom-10 left-5 right-5 justify-between items-end" pointerEvents="box-none">
+      <HStack className="absolute bottom-4 left-5 right-5 justify-between items-end" pointerEvents="box-none">
         
         {/* Hide Controls Button - Moved to Bottom Left */}
         {/* Only show in View Mode when controls are revealed */}
@@ -120,7 +120,7 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
             <Box className={flatPanelStyle} pointerEvents="auto">
                <Button className="h-12 px-4 rounded-none flex-row items-center justify-center active:bg-background-800" onPress={onHideControls} variant="link">
                  <ButtonIcon as={EyeOff} className="text-typography-500" size="lg" />
-                 <ButtonText className="ml-2 text-typography-500 font-medium">Hide</ButtonText>
+                 <ButtonText className="ml-2 text-typography-500 font-medium">Ocultar</ButtonText>
                </Button>
             </Box>
           </Animated.View>
@@ -139,8 +139,9 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
             className="ml-auto" // Push to right if alone
           >
             <Box className={flatPanelStyle} pointerEvents="auto">
-              <Button className={iconButtonStyle} onPress={onReset} variant="link">
+              <Button className="h-12 px-4 rounded-none flex-row items-center justify-center active:bg-background-800" onPress={onReset} variant="link">
                 <ButtonIcon as={RotateCcw} className="text-typography-0" size="lg" />
+                <ButtonText className="ml-2 text-typography-0 font-medium">Reset</ButtonText>
               </Button>
             </Box>
           </Animated.View>

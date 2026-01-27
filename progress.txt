@@ -161,3 +161,20 @@
   - Simple conditional changes (`showTopControls` → `isEditMode`) are low-risk and don't require extensive code review.
   - The `showTopControls` boolean combines both View Mode + controls revealed AND Edit Mode, so specific Edit Mode checks need `isEditMode` directly.
 ---
+
+## 2026-01-27 15:15 - Safe Area Integration
+- Added `react-native-safe-area-context` to `ProjectList`, `ImageImporter`, and `WorkspaceControls`.
+- Wrapped screen content in `SafeAreaView` to respect top (status bar) and bottom (home indicator) insets.
+- Ensured immersive experience in Workspace by applying safe area to Controls overlay only, keeping image full screen.
+- Verified `App.tsx` provides `SafeAreaProvider`.
+- **Learnings:**
+  - `SafeAreaView` with `edges` prop gives precise control over which sides to pad.
+  - For full-screen canvases with overlays, wrap the *overlays* in `SafeAreaView` with `pointerEvents="box-none"`, rather than the whole screen, to avoid letterboxing the canvas.
+---
+
+## 2026-01-27 15:18 - UI Adjustments
+- Added "Reset" label to the Reset button in WorkspaceControls.
+- Updated Reset button style to match other text-labeled buttons (padding, flex-row).
+- **Learnings:**
+  - Maintaining consistency in button styles (labeled vs icon-only) improves UI predictability.
+---

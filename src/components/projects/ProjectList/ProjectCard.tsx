@@ -25,12 +25,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onD
       onDelete(project.id);
     } else {
       Alert.alert(
-        "Delete Project",
-        `Are you sure you want to delete "${project.name}"?`,
+        "Eliminar Proyecto",
+        `¿Estás seguro de que quieres eliminar "${project.name}"?`,
         [
-          { text: "Cancel", style: "cancel" },
+          { text: "Cancelar", style: "cancel" },
           { 
-            text: "Delete", 
+            text: "Eliminar", 
             onPress: () => onDelete(project.id),
             style: "destructive"
           }
@@ -112,7 +112,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onD
           className="ml-2"
           onPress={handleDelete}
         >
-          <ButtonText className="text-error-600 font-bold uppercase text-xs tracking-wider">Delete</ButtonText>
+          <ButtonText className="text-error-600 font-bold uppercase text-xs tracking-wider">Eliminar</ButtonText>
         </Button>
       )}
     </Box>

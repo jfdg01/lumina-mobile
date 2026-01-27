@@ -43,7 +43,7 @@ const createNewProject = (imageUri: string): ProjectState => {
   const id = generateProjectId();
   return {
     id,
-    name: `Project ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
+    name: `Proyecto ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
     imageUri,
     transform: { ...DEFAULT_TRANSFORM },
     lastModified: Date.now(),

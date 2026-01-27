@@ -76,7 +76,7 @@ export default function App() {
   if (isLoading) {
     return (
       <Box className="flex-1 justify-center items-center bg-background-0">
-        <Text className="text-primary-500 text-lg font-semibold tracking-wider">Initializing...</Text>
+        <Text className="text-primary-500 text-lg font-semibold tracking-wider">Iniciando...</Text>
       </Box>
     );
   }
@@ -115,7 +115,7 @@ export default function App() {
             className="mb-10 self-center p-2"
             onPress={() => setIsCreatingNew(false)}
           >
-            <ButtonText className="text-typography-500 font-semibold uppercase tracking-wider">Cancel</ButtonText>
+            <ButtonText className="text-typography-500 font-semibold uppercase tracking-wider">Cancelar</ButtonText>
           </Button>
         </VStack>
       );
