@@ -21,16 +21,17 @@
         "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.jfdg01.proyector"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "owner": "jfdg01",
     "extra": {
       "eas": {
-        "projectId": "6f52f3f2-8f0c-4b87-9941-9e083fa7452a"
+        "projectId": "162702d0-e906-4c8a-b509-aa77f62b1be2"
       }
-    },
-    "owner": "jfdg01"
+    }
   }
 }
