@@ -39,10 +39,10 @@ export default function App() {
     loadProjects();
   }, []);
 
-  // Sync projection mode when current project changes
+  // Sync projection mode when current project changes - default to View Mode
   useEffect(() => {
     if (currentProject) {
-       setIsProjectionMode(false);
+       setIsProjectionMode(true); // Default to View Mode (projection) to prevent accidental edits
     }
   }, [currentProject?.id]);
 
