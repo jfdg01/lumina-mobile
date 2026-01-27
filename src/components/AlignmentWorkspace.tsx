@@ -16,7 +16,6 @@ import { VStack } from '@/components/ui/vstack';
 import { HStack } from '@/components/ui/hstack';
 import { Text } from '@/components/ui/text';
 import { Button, ButtonText, ButtonIcon } from '@/components/ui/button';
-import { Pressable } from '@/components/ui/pressable';
 import { Icon } from '@/components/ui/icon';
 import { 
   ChevronLeft, 
@@ -172,7 +171,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
   }
 
   const glassStyle = "bg-background-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-2 shadow-2xl overflow-hidden";
-  const iconButtonStyle = "w-12 h-12 rounded-xl items-center justify-center active:bg-white/10";
+  const iconButtonStyle = "w-12 h-12 rounded-xl  items-center justify-center active:bg-white/10";
 
   return (
     <Box className="flex-1 w-full overflow-hidden bg-black">
@@ -205,38 +204,40 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
           <HStack className="absolute top-12 left-5 right-5 justify-between items-center" pointerEvents="box-none">
             {/* Exit/Back Button */}
             <Box className={glassStyle} pointerEvents="auto">
-               <Pressable className={iconButtonStyle} onPress={onExit}>
-                 <Icon as={ChevronLeft} className="text-typography-0" size="xl" />
-               </Pressable>
+               <Button className={iconButtonStyle} onPress={onExit} variant="link">
+                 <ButtonIcon as={ChevronLeft} className="text-typography-0" size="xl" />
+               </Button>
             </Box>
 
             {/* Undo/Redo Group */}
             {!isProjectionMode && (
               <HStack className={glassStyle} pointerEvents="auto">
-                <Pressable 
+                <Button 
                   className={`${iconButtonStyle} ${!canUndo ? 'opacity-20' : ''}`} 
                   onPress={onUndo}
                   disabled={!canUndo}
+                  variant="link"
                 >
-                  <Icon as={Undo2} className="text-typography-0" size="lg" />
-                </Pressable>
+                  <ButtonIcon as={Undo2} className="text-typography-0" size="lg" />
+                </Button>
                 <Box className="w-[1px] h-8 bg-white/10 self-center" />
-                <Pressable 
+                <Button 
                   className={`${iconButtonStyle} ${!canRedo ? 'opacity-20' : ''}`} 
                   onPress={onRedo}
                   disabled={!canRedo}
+                  variant="link"
                 >
-                  <Icon as={Redo2} className="text-typography-0" size="lg" />
-                </Pressable>
+                  <ButtonIcon as={Redo2} className="text-typography-0" size="lg" />
+                </Button>
               </HStack>
             )}
 
             {/* View Mode Indicator / Hide Controls (if in projection revealed) */}
             {isProjectionMode && showSecondaryControls && (
                <Box className={glassStyle} pointerEvents="auto">
-                 <Pressable className={iconButtonStyle} onPress={onHideControls}>
-                   <Icon as={EyeOff} className="text-typography-500" size="lg" />
-                 </Pressable>
+                 <Button className={iconButtonStyle} onPress={onHideControls} variant="link">
+                   <ButtonIcon as={EyeOff} className="text-typography-500" size="lg" />
+                 </Button>
                </Box>
             )}
           </HStack>
@@ -269,9 +270,9 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
               exiting={FadeOut.duration(300)}
             >
               <Box className={glassStyle} pointerEvents="auto">
-                <Pressable className={iconButtonStyle} onPress={handleReset}>
-                  <Icon as={RotateCcw} className="text-typography-0" size="lg" />
-                </Pressable>
+                <Button className={iconButtonStyle} onPress={handleReset} variant="link">
+                  <ButtonIcon as={RotateCcw} className="text-typography-0" size="lg" />
+                </Button>
               </Box>
             </Animated.View>
           )}
