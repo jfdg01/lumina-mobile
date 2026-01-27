@@ -122,3 +122,17 @@
   - Sometimes acceptance criteria are already met by previous work - always review existing code before implementing
   - The isProjectionMode flag controls both gesture enabling and visual indicators simultaneously
 ---
+
+## 2026-01-27 13:35 - US-004
+- Verified "Exit Edit Mode to View Mode" story implementation was already complete.
+- Done button visible in Edit Mode (WorkspaceControls.tsx line 117-127) shows Check icon + "Done" text when !isProjectionMode.
+- Tapping Done calls onToggleProjection which sets isProjectionMode=true (App.tsx lines 96-99).
+- Transforms persisted automatically on every gesture end via onTransformChange (GestureHandler.tsx lines 43-44, 52-54, 62-64).
+- Controls hidden on exit via setShowSecondaryControls(false) - showTopControls evaluates to false in View Mode.
+- TypeScript verification passed (npx tsc --noEmit).
+- Files reviewed: WorkspaceControls.tsx, GestureHandler.tsx, AlignmentWorkspace.tsx, App.tsx
+- **Learnings for future iterations:**
+  - Together with US-003, the toggle mechanism (onToggleProjection) serves as both Edit entry and View Mode return.
+  - Transforms don't need explicit save on mode exit because they're persisted on gesture end.
+  - Controls visibility is managed by the combined boolean `showTopControls = !isProjectionMode || showSecondaryControls`.
+---
