@@ -10,6 +10,11 @@
 - Storage Structure: For simple lists, use a "Collection" key (JSON object map) + "Current ID" key pattern. Avoid separate keys per item unless necessary for performance.
 - App Structure: `src` is the root for source. `global.css` in `src`. `@` alias maps to `./src`.
 - Components: All components in `src/components`. Gluestack UI in `src/components/ui`.
+## 2026-01-27 01:45 - US-003
+- Refactored `ProjectList.tsx` to use Gluestack UI components (`Box`, `Text`, `Heading`, `Button`, `VStack`, `HStack`).
+- Replaced custom StyleSheet with NativeWind utility classes.
+- Verified appearance and functionality in browser.
+- Typecheck passed.
 ## 2026-01-27 01:25 - US-002
 - Installed Gluestack components: `vstack`, `hstack`, `center`, `heading`.
 - Refactored `App.tsx` entire render loop to use `Box`, `VStack`, `HStack`, `Heading`, `Text`, `Button`.

@@ -1,8 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Platform } from 'react-native';
-import { theme } from '../styles/theme';
-import { ProjectState } from '../store/useProjectStore';
-import { useProjectStore } from '../store/useProjectStore';
+import { FlatList, Platform, Alert } from 'react-native';
+import { ProjectState, useProjectStore } from '../store/useProjectStore';
+import { Box } from './ui/box';
+import { Text } from './ui/text';
+import { Heading } from './ui/heading';
+import { Button, ButtonText } from './ui/button';
+import { VStack } from './ui/vstack';
+import { HStack } from './ui/hstack';
+import { Pressable } from 'react-native';
 
 interface ProjectListProps {
   onSelectProject: (project: ProjectState) => void;
@@ -35,136 +40,59 @@ export const ProjectList: React.FC<ProjectListProps> = ({ onSelectProject, onCre
   };
 
   const renderItem = ({ item }: { item: ProjectState }) => (
-    <View style={styles.projectItem}>
-      <TouchableOpacity 
-        style={styles.projectInfo} 
+    <Box className="flex-row items-center bg-background-50 p-4 rounded-md mb-2 border border-outline-100">
+      <Pressable 
+        className="flex-1" 
         onPress={() => onSelectProject(item)}
       >
-        <Text style={styles.projectName}>{item.name}</Text>
-        <Text style={styles.projectDate}>
-          {new Date(item.lastModified).toLocaleDateString()} {new Date(item.lastModified).toLocaleTimeString()}
-        </Text>
-      </TouchableOpacity>
+        <VStack>
+          <Text className="font-bold text-lg text-typography-900 mb-1">{item.name}</Text>
+          <Text size="sm" className="text-typography-500">
+            {new Date(item.lastModified).toLocaleDateString()} {new Date(item.lastModified).toLocaleTimeString()}
+          </Text>
+        </VStack>
+      </Pressable>
       
-      <TouchableOpacity 
-        style={styles.deleteButton} 
+      <Button 
+        action="negative" 
+        variant="outline" 
+        size="sm" 
+        className="ml-2"
         onPress={() => handleDelete(item)}
       >
-        <Text style={styles.deleteButtonText}>Delete</Text>
-      </TouchableOpacity>
-    </View>
+        <ButtonText>Delete</ButtonText>
+      </Button>
+    </Box>
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Your Projects</Text>
+    <Box className="flex-1 w-full bg-background-0 p-4">
+      <Heading size="3xl" className="text-center mt-5 mb-6 text-typography-900 tracking-wider">
+        Your Projects
+      </Heading>
       
       {projects.length === 0 && !isLoading ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>No saved projects yet.</Text>
-        </View>
+        <Box className="flex-1 justify-center items-center">
+          <Text className="text-typography-500 text-lg">No saved projects yet.</Text>
+        </Box>
       ) : (
         <FlatList
           data={projects}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContent}
-          style={styles.list}
+          contentContainerStyle={{ paddingBottom: 100 }}
+          style={{ flex: 1, width: '100%' }}
         />
       )}
 
-      <TouchableOpacity style={styles.createButton} onPress={onCreateNew}>
-        <Text style={styles.createButtonText}>+ Create New Project</Text>
-      </TouchableOpacity>
-    </View>
+      <Button 
+        action="primary" 
+        size="lg" 
+        className="absolute bottom-8 self-center rounded-full shadow-lg" 
+        onPress={onCreateNew}
+      >
+        <ButtonText className="uppercase font-extrabold">+ Create New Project</ButtonText>
+      </Button>
+    </Box>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    width: '100%',
-    padding: theme.spacing.md,
-    backgroundColor: theme.colors.background,
-  },
-  header: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: theme.colors.text,
-    marginTop: theme.spacing.xl,
-    marginBottom: theme.spacing.lg,
-    textAlign: 'center',
-    letterSpacing: 1,
-  },
-  list: {
-    flex: 1,
-    width: '100%',
-  },
-  listContent: {
-    paddingBottom: 100, 
-  },
-  projectItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.surfaceLight,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    marginBottom: theme.spacing.sm,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  projectInfo: {
-    flex: 1,
-  },
-  projectName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: theme.colors.text,
-    marginBottom: 4,
-  },
-  projectDate: {
-    fontSize: 12,
-    color: theme.colors.textMuted,
-    fontWeight: '500',
-  },
-  deleteButton: {
-    padding: 8,
-    marginLeft: 8,
-    backgroundColor: '#3a1111',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ff4444',
-  },
-  deleteButtonText: {
-    color: '#ff4444',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-
-  emptyState: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyText: {
-    color: theme.colors.textMuted,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  createButton: {
-    position: 'absolute',
-    bottom: 30,
-    alignSelf: 'center',
-    backgroundColor: theme.colors.primary,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: theme.borderRadius.full,
-    ...theme.shadows.glow,
-  },
-  createButtonText: {
-    color: '#000',
-    fontSize: 14,
-    fontWeight: '800',
-    textTransform: 'uppercase',
-  },
-});
