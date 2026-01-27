@@ -23,6 +23,7 @@ interface ProjectStore {
   createProject: (imageUri: string) => Promise<void>;
   selectProject: (project: ProjectState) => Promise<void>;
   deleteProject: (projectId: string) => Promise<void>;
+  renameProject: (projectId: string, newName: string) => Promise<void>;
   exitProject: () => Promise<void>;
   
   // Transform & History
@@ -122,6 +123,29 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       set({ projects });
     } catch (error) {
       console.error('Failed to delete project:', error);
+    }
+  },
+
+  renameProject: async (projectId: string, newName: string) => {
+    try {
+      const collection = await StorageService.getProjects();
+      const project = collection[projectId];
+      
+      if (project) {
+        const updatedProject = { ...project, name: newName, lastModified: Date.now() };
+        await StorageService.saveProject(updatedProject);
+        
+        const { currentProject } = get();
+        if (currentProject && currentProject.id === projectId) {
+          set({ currentProject: updatedProject });
+        }
+
+        const newCollection = await StorageService.getProjects();
+        const projects = Object.values(newCollection).sort((a, b) => b.lastModified - a.lastModified);
+        set({ projects });
+      }
+    } catch (error) {
+      console.error('Failed to rename project:', error);
     }
   },
 

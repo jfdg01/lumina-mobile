@@ -7,6 +7,9 @@ import { Text } from '@/components/ui/text';
 import { GestureHandler } from './GestureHandler';
 import { WorkspaceControls } from './WorkspaceControls';
 
+import * as NavigationBar from 'expo-navigation-bar';
+import { StatusBar, Platform } from 'react-native';
+
 interface AlignmentWorkspaceProps {
   imageUri: string | null;
   isEditMode: boolean;
@@ -45,6 +48,38 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
   const savedScale = useSharedValue(initialTransform?.scale ?? 1);
   const rotation = useSharedValue(initialTransform?.rotation ?? 0);
   const savedRotation = useSharedValue(initialTransform?.rotation ?? 0);
+
+  // Manage System Bars Visibility
+  useEffect(() => {
+    const manageSystemBars = async () => {
+      // Hide if in view mode (not edit mode) AND controls are NOT shown
+      const shouldHide = !isEditMode && !showSecondaryControls;
+
+      if (Platform.OS === 'android') {
+        if (shouldHide) {
+          await NavigationBar.setVisibilityAsync('hidden');
+          await NavigationBar.setBehaviorAsync('overlay-swipe');
+          StatusBar.setHidden(true, 'fade');
+        } else {
+          await NavigationBar.setVisibilityAsync('visible');
+          StatusBar.setHidden(false, 'fade');
+        }
+      } else {
+        // iOS only has StatusBar to hide (navigation bar/home indicator is system controlled)
+        StatusBar.setHidden(shouldHide, 'fade');
+      }
+    };
+
+    manageSystemBars();
+
+    // Cleanup: ensure visible on unmount
+    return () => {
+       if (Platform.OS === 'android') {
+        NavigationBar.setVisibilityAsync('visible');
+       }
+       StatusBar.setHidden(false);
+    };
+  }, [isEditMode, showSecondaryControls]);
 
   // Update shared values when initialTransform changes (e.g., on load or undo/redo)
   useEffect(() => {
@@ -109,6 +144,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
         savedRotation={savedRotation}
         onTransformChange={notifyTransformChange}
         onLongPress={onLongPress}
+        enableLongPress={!isEditMode && !showSecondaryControls}
       />
 
       <WorkspaceControls

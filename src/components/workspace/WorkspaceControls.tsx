@@ -41,7 +41,6 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
 }) => {
   const flatPanelStyle = "bg-background-950 border border-outline-800 rounded-none p-1 shadow-none overflow-hidden";
   const iconButtonStyle = "w-12 h-12 rounded-none items-center justify-center active:bg-background-800";
-  const primaryButtonStyle = "h-14 px-6 rounded-none bg-primary-500 active:bg-primary-600";
 
   // View Mode: controls hidden unless long-press reveals them
   // Edit Mode: controls always visible
@@ -61,8 +60,9 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
           <HStack className="justify-between items-center" pointerEvents="box-none">
             {/* Exit/Back Button */}
             <Box className={flatPanelStyle} pointerEvents="auto">
-               <Button className={iconButtonStyle} onPress={onExit} variant="link">
+               <Button className="h-12 px-4 rounded-none flex-row items-center justify-center active:bg-background-800" onPress={onExit} variant="link">
                  <ButtonIcon as={ChevronLeft} className="text-typography-0" size="xl" />
+                 <ButtonText className="ml-1 text-typography-0 font-medium">Back</ButtonText>
                </Button>
             </Box>
 
@@ -89,14 +89,20 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
               </HStack>
             )}
 
-            {/* Hide Controls button - only in View Mode when controls revealed */}
-            {!isEditMode && showSecondaryControls && (
-               <Box className={flatPanelStyle} pointerEvents="auto">
-                 <Button className={iconButtonStyle} onPress={onHideControls} variant="link">
-                   <ButtonIcon as={EyeOff} className="text-typography-500" size="lg" />
-                 </Button>
-               </Box>
-            )}
+            {/* Edit/Done Button - Moved to Top Right */}
+            <Box className={flatPanelStyle} pointerEvents="auto">
+              <Button 
+                onPress={onToggleEditMode}
+                className="h-12 px-4 rounded-none bg-primary-500 active:bg-primary-600 flex-row items-center justify-center"
+                variant="solid"
+                action="primary"
+              >
+                <ButtonIcon as={!isEditMode ? Pencil : Check} className="text-black" />
+                <ButtonText className="ml-2 font-bold uppercase tracking-wider text-black">
+                  {!isEditMode ? 'Edit' : 'Done'}
+                </ButtonText>
+              </Button>
+            </Box>
           </HStack>
         </Animated.View>
       )}
@@ -104,36 +110,33 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
       {/* Bottom Bar Controls */}
       <HStack className="absolute bottom-10 left-5 right-5 justify-between items-end" pointerEvents="box-none">
         
-        {/* Mode Action Button */}
-        {/* View Mode with controls: Show "Edit" button */}
-        {/* Edit Mode: Show "Done" button */}
-        {/* View Mode without controls: Hidden */}
-        {(showSecondaryControls || isEditMode) && (
+        {/* Hide Controls Button - Moved to Bottom Left */}
+        {/* Only show in View Mode when controls are revealed */}
+        {!isEditMode && showSecondaryControls && (
           <Animated.View 
             entering={FadeIn.duration(300)}
             exiting={FadeOut.duration(300)}
           >
             <Box className={flatPanelStyle} pointerEvents="auto">
-              <Button 
-                onPress={onToggleEditMode}
-                className={primaryButtonStyle}
-                variant="solid"
-                action="primary"
-              >
-                <ButtonIcon as={!isEditMode ? Pencil : Check} className="text-black" />
-                <ButtonText className="ml-2 font-black uppercase tracking-wider text-black">
-                  {!isEditMode ? 'Edit' : 'Done'}
-                </ButtonText>
-              </Button>
+               <Button className="h-12 px-4 rounded-none flex-row items-center justify-center active:bg-background-800" onPress={onHideControls} variant="link">
+                 <ButtonIcon as={EyeOff} className="text-typography-500" size="lg" />
+                 <ButtonText className="ml-2 text-typography-500 font-medium">Hide</ButtonText>
+               </Button>
             </Box>
           </Animated.View>
         )}
+
+        {/* Spacer if Hide button is not visible but Reset might be? 
+            Actually, justify-between handles it. If Hide is gone, Reset stays right. 
+            If Reset is gone (View Mode), and Hide is there, Hide stays left.
+        */}
 
         {/* Reset Button - only in Edit Mode */}
         {isEditMode && (
           <Animated.View 
             entering={FadeIn.duration(300)}
             exiting={FadeOut.duration(300)}
+            className="ml-auto" // Push to right if alone
           >
             <Box className={flatPanelStyle} pointerEvents="auto">
               <Button className={iconButtonStyle} onPress={onReset} variant="link">
