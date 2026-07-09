@@ -1,72 +1,73 @@
 # Lumina
-> *The Artist's Digital Lightbox*
 
+**Convierte tu tablet en una caja de luz digital para calcar y referenciar dibujos. 100% local, sin suscripciones.**
+
+![React Native](https://img.shields.io/badge/React%20Native-0.81-61DAFB?logo=react&logoColor=white)
+![Expo](https://img.shields.io/badge/Expo-54-000020?logo=expo&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20Android-green.svg)
 
-**Lumina** turns your tablet or smartphone into a professional-grade digital lightbox. Designed for artists, illustrators, and designers, it allows you to project images with precision for tracing, referencing, and composition.
+---
+
+## El problema
+
+Los artistas, ilustradores y diseñadores necesitan una **caja de luz** para calcar contornos, referenciar composiciones y practicar trazos. Las cajas de luz físicas son caras y las apps equivalentes suelen esconder funciones básicas tras suscripciones. **Lumina convierte cualquier tablet o móvil en una caja de luz profesional**: colocas el papel sobre la pantalla y calcas, sin cuotas ni conexión a internet.
 
 ---
 
-## 🚀 Features
+## Cómo funciona
 
-*   **Distraction-Free Tracing**: "View Mode" locks the interface and keeps the screen awake, ensuring your workflow is never interrupted by accidental touches.
-*   **Precision Alignment**: "Edit Mode" offers intuitive gestures to pan, pinch-to-zoom, and rotate your reference image to the perfect position.
-*   **Gesture Controls**: Long-press controls keep the UI minimal and out of your way until you need it.
-*   **Project Management**: Organize multiple reference images into projects.
+```mermaid
+flowchart LR
+    A[Crear proyecto] --> B[Elegir imagen<br/>de la galería]
+    B --> C[Modo Edición<br/>pan · zoom · rotar]
+    C --> D[Modo Vista<br/>gestos bloqueados<br/>pantalla siempre activa]
+    D -->|long-press 2s| C
+```
 
-## 🎯 Use Change
+Decisiones técnicas clave y su porqué:
 
-Lumina is the perfect companion for:
-*   **Tracing & Illustration**: Place your sketching paper directly on your tablet to trace complex outlines with ease.
-*   **Calligraphy & Lettering**: Use grid overlays or reference sheets to practice your strokes.
-*   **Animation**: Check keyframes and alignments.
-*   **Blueprint Review**: Examine details in schematics without constantly interacting with the screen.
-
----
-
-## 📖 User Manual
-
-### 1. Getting Started
-*   **Create a Project**: Tap the "+" button on the home screen to create a new project.
-*   **Select an Image**: Choose a reference image from your device's gallery.
-
-### 2. Aligning Your Work (Edit Mode)
-When you first open a project (or tap "Edit" from the controls), you enter **Edit Mode**.
-*   **Move**: Drag with one finger to pan the image.
-*   **Zoom**: Pinch with two fingers to scale the image.
-*   **Rotate**: Twist with two fingers to rotate the image.
-*   **Reset**: If you get lost, tap the "Reset" button to return the image to its default center position.
-*   **Save**: Tap "Done" to save your alignment and enter View Mode.
-
-### 3. Tracing (View Mode)
-**View Mode** is designed for working.
-*   The interface disappears to give you a full-screen view.
-*   Gestures are disabled to prevent accidental shifts while you trace.
-*   The screen stays awake so you don't have to keep tapping it.
-
-### 4. Navigation & Controls
-To access the menu while in View Mode:
-*   **Long Press**: Hold your finger anywhere on the screen for **2 seconds**.
-*   The controls overlay will fade in.
-*   **Back**: Return to the project list.
-*   **Edit**: Unlock the image to make adjustments.
-*   **Hide**: Tap anywhere outside the controls to hide them again.
+- **Reanimated + Gesture Handler** — los gestos de arrastrar, hacer zoom y rotar corren en el hilo de UI, así el ajuste de la imagen es fluido y sin lag mientras alineas.
+- **Zustand** — estado global mínimo y sin boilerplate para gestionar proyectos y transformaciones de imagen.
+- **AsyncStorage** — persistencia local en el dispositivo: tus proyectos siguen ahí al cerrar la app.
+- **100% offline** — no hay backend ni cuentas; nada sale de tu dispositivo.
 
 ---
 
-## 🛠 Tech Stack
+## Stack
 
-*   **Framework**: React Native (with Expo)
-*   **Styling**: NativeWind (Tailwind CSS)
-*   **Animations**: Reanimated 3 & Legend Motion
-*   **State Management**: Zustand
-*   **Storage**: Async Storage
-
-## 🤝 Contributing
-
-Contributions are welcome! Please fork the repository and submit a pull request for any enhancements or bug fixes.
+| Capa | Tecnología |
+|------|-----------|
+| Framework | React Native + Expo |
+| Estilos | NativeWind (Tailwind CSS) |
+| Gestos y animaciones | Reanimated + Gesture Handler |
+| Estado | Zustand |
+| Persistencia | AsyncStorage |
 
 ---
 
-*Generated with ❤️ by Antigravity*
+## Uso
+
+Lumina tiene dos modos:
+
+- **Modo Edición** — alinea la imagen: arrastra con un dedo para moverla, pellizca para hacer zoom y gira con dos dedos. Pulsa *Reset* para centrarla de nuevo y *Done* para guardar.
+- **Modo Vista** — pensado para calcar: la interfaz desaparece, los gestos se bloquean (nada se mueve sin querer) y la pantalla permanece siempre activa.
+
+Para abrir el menú desde el Modo Vista, mantén pulsada la pantalla **2 segundos** (long-press): aparecerán los controles para volver, editar u ocultarlos.
+
+---
+
+## Ejecutar en local
+
+```bash
+npm install     # instala dependencias
+
+npm start       # inicia el servidor de Expo
+npm run android # abre en Android
+npm run ios     # abre en iOS
+npm run web     # abre en navegador
+```
+
+---
+
+Código abierto (MIT) · 100% local · sin suscripciones.
