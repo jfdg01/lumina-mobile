@@ -11,7 +11,8 @@ import {
   EyeOff,
   Pencil,
   Check,
-  RotateCcw 
+  RotateCcw,
+  RotateCw
 } from 'lucide-react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
@@ -24,6 +25,7 @@ interface WorkspaceControlsProps {
   onToggleEditMode?: () => void;
   onHideControls?: () => void;
   onReset: () => void;
+  onRotate90: () => void;
   canUndo: boolean;
   canRedo: boolean;
 }
@@ -37,6 +39,7 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
   onToggleEditMode,
   onHideControls,
   onReset,
+  onRotate90,
   canUndo,
   canRedo,
 }) => {
@@ -142,9 +145,24 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
             If Reset is gone (View Mode), and Hide is there, Hide stays left.
         */}
 
+        {/* Rotate 90° (projector orientation) + Reset - only in Edit Mode */}
+        {isEditMode && (
+          <Animated.View
+            entering={FadeIn.duration(300)}
+            exiting={FadeOut.duration(300)}
+          >
+            <Box className={flatPanelStyle} pointerEvents="auto">
+              <Button className="h-12 px-4 rounded-none flex-row items-center justify-center active:bg-background-800" onPress={onRotate90} variant="link">
+                <ButtonIcon as={RotateCw} className="text-typography-0" size="lg" />
+                <ButtonText className="ml-2 text-typography-0 font-medium">Girar 90°</ButtonText>
+              </Button>
+            </Box>
+          </Animated.View>
+        )}
+
         {/* Reset Button - only in Edit Mode */}
         {isEditMode && (
-          <Animated.View 
+          <Animated.View
             entering={FadeIn.duration(300)}
             exiting={FadeOut.duration(300)}
             className="ml-auto" // Push to right if alone

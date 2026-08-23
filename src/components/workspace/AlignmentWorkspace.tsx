@@ -94,6 +94,8 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
     }
   }, [initialTransform]);
 
+  const baseRotation = initialTransform?.baseRotation ?? 0;
+
   // Helper to notify parent of transform changes
   const notifyTransformChange = () => {
     if (onTransformChange) {
@@ -102,6 +104,20 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
         translationY: translationY.value,
         scale: scale.value,
         rotation: rotation.value,
+        baseRotation,
+      });
+    }
+  };
+
+  // Cycle projector mounting orientation in 90° steps, saved per project
+  const handleRotate90 = () => {
+    if (onTransformChange) {
+      onTransformChange({
+        translationX: translationX.value,
+        translationY: translationY.value,
+        scale: scale.value,
+        rotation: rotation.value,
+        baseRotation: (baseRotation + 90) % 360,
       });
     }
   };
@@ -113,13 +129,15 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
     savedScale.value = 1;
     rotation.value = withSpring(0);
     savedRotation.value = 0;
-    
+
     if (onTransformChange) {
+      // baseRotation survives reset: the projector didn't physically move
       onTransformChange({
         translationX: 0,
         translationY: 0,
         scale: 1,
         rotation: 0,
+        baseRotation,
       });
     }
   };
@@ -143,6 +161,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
         savedScale={savedScale}
         rotation={rotation}
         savedRotation={savedRotation}
+        baseRotation={baseRotation}
         onTransformChange={notifyTransformChange}
         onLongPress={onLongPress}
         enableLongPress={!isEditMode && !showSecondaryControls}
@@ -157,6 +176,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
         onToggleEditMode={onToggleEditMode}
         onHideControls={onHideControls}
         onReset={handleReset}
+        onRotate90={handleRotate90}
         canUndo={canUndo}
         canRedo={canRedo}
       />

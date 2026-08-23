@@ -15,13 +15,6 @@ const getImagesDirectory = () => {
   return new Directory(Paths.document, IMAGES_DIR_NAME);
 };
 
-export const ensureImagesDirectoryExists = async () => {
-  const imagesDir = getImagesDirectory();
-  if (imagesDir && !imagesDir.exists) {
-    imagesDir.create();
-  }
-};
-
 export const pickImage = async (): Promise<string | null> => {
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ['images'],

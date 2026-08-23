@@ -44,7 +44,6 @@ export const ImageImporter: React.FC<ImageImporterProps> = ({ onImageImported })
     setIsLoading(true);
     try {
       const demoUri = 'https://picsum.photos/800/600';
-      await new Promise(resolve => setTimeout(resolve, 500));
       setLastImportedUri(demoUri);
       if (onImageImported) {
         onImageImported(demoUri);

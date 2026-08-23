@@ -6,7 +6,7 @@ import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
 import { Button, ButtonText, ButtonIcon } from '@/components/ui/button';
 import { Image } from '@/components/ui/image';
-import { EditIcon, CheckIcon, CloseIcon } from '@/components/ui/icon';
+import { Pencil, Check, X } from 'lucide-react-native';
 import { useProjectStore } from '@/store/useProjectStore';
 
 interface ProjectCardProps {
@@ -73,10 +73,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onD
               onSubmitEditing={handleSaveRename}
             />
             <Button action="primary" variant="link" size="sm" onPress={handleSaveRename} className="p-2">
-              <ButtonIcon as={CheckIcon} className="text-success-600" />
+              <ButtonIcon as={Check} className="text-success-600" />
             </Button>
             <Button action="secondary" variant="link" size="sm" onPress={handleCancelRename} className="p-2">
-              <ButtonIcon as={CloseIcon} className="text-error-600" />
+              <ButtonIcon as={X} className="text-error-600" />
             </Button>
           </Box>
         ) : (
@@ -98,7 +98,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onD
               className="p-2"
               onPress={() => setIsEditing(true)}
             >
-              <ButtonIcon as={EditIcon} className="text-typography-400" />
+              <ButtonIcon as={Pencil} className="text-typography-400" />
             </Button>
           </Box>
         )}

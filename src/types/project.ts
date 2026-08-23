@@ -3,6 +3,8 @@ export interface TransformState {
   translationY: number;
   scale: number;
   rotation: number;
+  /** Device/projector mounting orientation in degrees (0/90/180/270). Optional: older saved projects lack it. */
+  baseRotation?: number;
 }
 
 export interface ProjectState {

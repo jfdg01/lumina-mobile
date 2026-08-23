@@ -8,6 +8,7 @@ const DEFAULT_TRANSFORM: TransformState = {
   translationY: 0,
   scale: 1,
   rotation: 0,
+  baseRotation: 0,
 };
 
 interface ProjectStore {
@@ -39,6 +40,11 @@ const generateProjectId = (): string => {
   return `project_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 };
 
+const fetchSortedProjects = async (): Promise<ProjectState[]> => {
+  const collection = await StorageService.getProjects();
+  return Object.values(collection).sort((a, b) => b.lastModified - a.lastModified);
+};
+
 const createNewProject = (imageUri: string): ProjectState => {
   const id = generateProjectId();
   return {
@@ -62,7 +68,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     try {
       const collection = await StorageService.getProjects();
       const projects = Object.values(collection).sort((a, b) => b.lastModified - a.lastModified);
-      
+
       const currentId = await StorageService.getCurrentProjectId();
       const currentProject = (currentId && collection[currentId]) ? collection[currentId] : null;
 
@@ -80,10 +86,9 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
       await StorageService.saveProject(newProject);
       await StorageService.setCurrentProjectId(newProject.id);
 
-      const collection = await StorageService.getProjects();
-      const projects = Object.values(collection).sort((a, b) => b.lastModified - a.lastModified);
-      
-      set({ 
+      const projects = await fetchSortedProjects();
+
+      set({
         projects, 
         currentProject: newProject,
         undoStack: [],
@@ -118,9 +123,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
         set({ currentProject: null });
       }
 
-      const collection = await StorageService.getProjects();
-      const projects = Object.values(collection).sort((a, b) => b.lastModified - a.lastModified);
-      set({ projects });
+      set({ projects: await fetchSortedProjects() });
     } catch (error) {
       console.error('Failed to delete project:', error);
     }
@@ -140,9 +143,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
           set({ currentProject: updatedProject });
         }
 
-        const newCollection = await StorageService.getProjects();
-        const projects = Object.values(newCollection).sort((a, b) => b.lastModified - a.lastModified);
-        set({ projects });
+        set({ projects: await fetchSortedProjects() });
       }
     } catch (error) {
       console.error('Failed to rename project:', error);
@@ -228,9 +229,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => ({
     if (currentProject) {
       try {
         await StorageService.saveProject(currentProject);
-        const collection = await StorageService.getProjects();
-        const projects = Object.values(collection).sort((a, b) => b.lastModified - a.lastModified);
-        set({ projects });
+        set({ projects: await fetchSortedProjects() });
       } catch (error) {
         console.error('Failed to sync project:', error);
       }

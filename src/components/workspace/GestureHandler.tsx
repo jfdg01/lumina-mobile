@@ -23,6 +23,7 @@ interface GestureHandlerProps {
   savedScale: SharedValue<number>;
   rotation: SharedValue<number>;
   savedRotation: SharedValue<number>;
+  baseRotation: number;
   onTransformChange: () => void;
   onLongPress?: () => void;
   enableLongPress?: boolean;
@@ -37,6 +38,7 @@ export const GestureHandler: React.FC<GestureHandlerProps> = ({
   savedScale,
   rotation,
   savedRotation,
+  baseRotation,
   onTransformChange,
   onLongPress,
   enableLongPress = true,
@@ -175,10 +177,12 @@ export const GestureHandler: React.FC<GestureHandlerProps> = ({
           className={`w-[300px] h-[300px] justify-center items-center border ${isEditMode ? 'border-dashed border-primary-500' : 'border-transparent'}`}
           style={animatedStyle}
         >
-          <Image 
-            source={{ uri: imageUri }} 
+          {/* baseRotation on the inner image (square box), so pan gestures stay in screen coordinates */}
+          <Image
+            source={{ uri: imageUri }}
             className="w-full h-full"
-            resizeMode="contain" 
+            style={{ transform: [{ rotate: `${baseRotation}deg` }] }}
+            resizeMode="contain"
           />
         </Animated.View>
       </Animated.View>
