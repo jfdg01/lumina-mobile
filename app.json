@@ -28,9 +28,15 @@
       "favicon": "./assets/favicon.png"
     },
     "owner": "jfdg01",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/7d4ce021-d868-456b-95f3-e5434abf7e3c"
+    },
     "extra": {
       "eas": {
-        "projectId": "162702d0-e906-4c8a-b509-aa77f62b1be2"
+        "projectId": "7d4ce021-d868-456b-95f3-e5434abf7e3c"
       }
     }
   }
