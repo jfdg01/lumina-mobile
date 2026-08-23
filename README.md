@@ -57,6 +57,33 @@ Para abrir el menú desde el Modo Vista, mantén pulsada la pantalla **2 segundo
 
 ---
 
+## Instalar y actualizar
+
+La app se distribuye como APK (Android). Instálala una vez y las actualizaciones llegan solas.
+
+**Instalar (una vez):**
+
+1. Abre la [página de builds](https://expo.dev/accounts/jfdg01/projects/lumina/builds) en el móvil y pulsa *Install*. O copia el APK que te pasen.
+2. Android pide permiso para instalar desde el navegador. Acéptalo.
+
+**Actualizaciones OTA (over the air):**
+
+La app lleva `expo-updates`. Al arrancar, comprueba si hay una versión nueva del código en el canal `preview`, la descarga y la usa en el siguiente arranque. No hace falta reinstalar nada. Para forzar una actualización: cierra la app del todo (desliza en recientes) y ábrela dos veces.
+
+**Publicar una actualización (desarrollador):**
+
+```bash
+npx eas-cli update --branch preview --message "qué cambia"
+```
+
+Esto solo sirve para cambios de JavaScript, estilos y assets. Un cambio nativo (módulo nuevo, permiso nuevo, subir de SDK) necesita un APK nuevo: sube `version` en `app.json` y ejecuta:
+
+```bash
+npx eas-cli build -p android --profile preview
+```
+
+---
+
 ## Ejecutar en local
 
 ```bash

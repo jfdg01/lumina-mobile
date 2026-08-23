@@ -3,6 +3,13 @@
 ## Commands
 - Start: `npx expo start`
 - Typecheck: `npx tsc --noEmit`
+- OTA update (JS/assets only): `npx eas-cli update --branch preview --message "..."`
+- New APK (after a native change; bump `version` in `app.json` first): `npx eas-cli build -p android --profile preview`
+
+## OTA updates
+- `expo-updates` is installed. Runtime version policy is `appVersion`, so `version` in `app.json` is the runtime version.
+- Shipped APKs listen on channel `preview`. An OTA update only reaches APKs with the same `version`.
+- Do not ship an OTA update after a native change (new native module, new permission, SDK upgrade, `app.json` native fields). Bump `version`, build a new APK.
 
 ## Code Patterns
 - **FileSystem**: Use modern `expo-file-system` API (`Paths`, `File`, `Directory`) instead of legacy constants.
