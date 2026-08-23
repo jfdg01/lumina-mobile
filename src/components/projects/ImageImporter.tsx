@@ -26,7 +26,7 @@ export const ImageImporter: React.FC<ImageImporterProps> = ({ onImageImported })
 
   return (
     <View className="flex-1 bg-background-0">
-      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+      <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom', 'left', 'right']}>
         <Header title="Nuevo Proyecto" className="mb-8" />
 
         <View className="px-6 gap-4 w-full max-w-md self-center">

@@ -13,4 +13,7 @@ export interface ProjectState {
   imageUri: string;
   transform: TransformState;
   lastModified: number;
+  /** Undo and redo history. Saved with the project, so it survives an exit and a restart. Optional: older saved projects lack it. */
+  undoStack?: TransformState[];
+  redoStack?: TransformState[];
 }

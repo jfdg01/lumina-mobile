@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSharedValue, withSpring } from 'react-native-reanimated';
 import * as NavigationBar from 'expo-navigation-bar';
 import { StatusBar, Platform, Text, View } from 'react-native';
 
 import { TransformState } from '@/types/project';
-import { GestureHandler } from './GestureHandler';
+import { AxisLock, GestureHandler } from './GestureHandler';
 import { WorkspaceControls } from './WorkspaceControls';
+import { TransformFields } from './TransformFields';
+import { Grid } from './Grid';
 
 interface AlignmentWorkspaceProps {
   imageUri: string | null;
@@ -46,6 +48,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
   const rotation = useSharedValue(initialTransform.rotation);
   const savedRotation = useSharedValue(initialTransform.rotation);
   const baseRotation = initialTransform.baseRotation ?? 0;
+  const [axisLock, setAxisLock] = useState<AxisLock>('free');
 
   // Hide the system bars in view mode while the controls are hidden
   useEffect(() => {
@@ -101,6 +104,8 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
 
   return (
     <View className="flex-1 w-full overflow-hidden bg-black">
+      {/* Edit mode only: a grid on the wall would get painted */}
+      {isEditMode && <Grid translationX={translationX} translationY={translationY} scale={scale} rotation={rotation} />}
       <GestureHandler
         imageUri={imageUri}
         isEditMode={isEditMode}
@@ -111,6 +116,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
         rotation={rotation}
         savedRotation={savedRotation}
         baseRotation={baseRotation}
+        axisLock={axisLock}
         onTransformChange={() => emit()}
         onLongPress={onLongPress}
         enableLongPress={!isEditMode && !showSecondaryControls}
@@ -126,6 +132,18 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
         onHideControls={onHideControls}
         onReset={handleReset}
         onRotate90={() => emit({ baseRotation: (baseRotation + 90) % 360 })}
+        axisLock={axisLock}
+        onCycleAxisLock={() => setAxisLock({ free: 'x', x: 'y', y: 'free' }[axisLock] as AxisLock)}
+        fields={
+          <TransformFields
+            translationX={translationX}
+            translationY={translationY}
+            scale={scale}
+            rotation={rotation}
+            baseRotation={baseRotation}
+            onSet={emit}
+          />
+        }
         canUndo={canUndo}
         canRedo={canRedo}
       />

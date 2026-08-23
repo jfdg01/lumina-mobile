@@ -17,8 +17,6 @@ type Stack = 'undoStack' | 'redoStack';
 interface ProjectStore {
   projects: ProjectState[];
   currentProject: ProjectState | null;
-  undoStack: TransformState[];
-  redoStack: TransformState[];
   isLoading: boolean;
 
   loadProjects: () => Promise<void>;
@@ -43,14 +41,18 @@ const fetchSortedProjects = async (): Promise<ProjectState[]> => {
 export const useProjectStore = create<ProjectStore>((set, get) => {
   // Pop the last transform off one stack, push the current one onto the other
   const shift = (from: Stack, to: Stack) => {
-    const state = get();
-    const { currentProject } = state;
-    const transform = state[from][state[from].length - 1];
+    const { currentProject } = get();
+    const stack = currentProject?.[from] ?? [];
+    const transform = stack[stack.length - 1];
     if (!currentProject || !transform) return;
     set({
-      currentProject: { ...currentProject, transform, lastModified: Date.now() },
-      [from]: state[from].slice(0, -1),
-      [to]: [...state[to], currentProject.transform],
+      currentProject: {
+        ...currentProject,
+        transform,
+        lastModified: Date.now(),
+        [from]: stack.slice(0, -1),
+        [to]: [...(currentProject[to] ?? []), currentProject.transform],
+      },
     });
     get().syncCurrentProject();
   };
@@ -58,8 +60,6 @@ export const useProjectStore = create<ProjectStore>((set, get) => {
   return {
     projects: [],
     currentProject: null,
-    undoStack: [],
-    redoStack: [],
     isLoading: false,
 
     loadProjects: async () => {
@@ -87,7 +87,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => {
         };
         await StorageService.saveProject(newProject);
         await StorageService.setCurrentProjectId(newProject.id);
-        set({ projects: await fetchSortedProjects(), currentProject: newProject, undoStack: [], redoStack: [] });
+        set({ projects: await fetchSortedProjects(), currentProject: newProject });
       } catch (error) {
         console.error('Failed to create project:', error);
       }
@@ -96,7 +96,7 @@ export const useProjectStore = create<ProjectStore>((set, get) => {
     selectProject: async (project: ProjectState) => {
       try {
         await StorageService.setCurrentProjectId(project.id);
-        set({ currentProject: project, undoStack: [], redoStack: [] });
+        set({ currentProject: project });
       } catch (error) {
         console.error('Failed to select project:', error);
       }
@@ -135,12 +135,16 @@ export const useProjectStore = create<ProjectStore>((set, get) => {
     },
 
     updateTransform: (transform: TransformState) => {
-      const { currentProject, undoStack } = get();
+      const { currentProject } = get();
       if (!currentProject) return;
       set({
-        currentProject: { ...currentProject, transform, lastModified: Date.now() },
-        undoStack: [...undoStack, currentProject.transform].slice(-MAX_HISTORY),
-        redoStack: [],
+        currentProject: {
+          ...currentProject,
+          transform,
+          lastModified: Date.now(),
+          undoStack: [...(currentProject.undoStack ?? []), currentProject.transform].slice(-MAX_HISTORY),
+          redoStack: [],
+        },
       });
       get().syncCurrentProject();
     },

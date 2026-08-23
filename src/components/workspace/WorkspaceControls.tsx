@@ -2,7 +2,8 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, ink } from '@/components/ui';
-import { ChevronLeft, Undo2, Redo2, EyeOff, Pencil, Check, RotateCcw, RotateCw, LucideIcon } from 'lucide-react-native';
+import { ChevronLeft, Undo2, Redo2, EyeOff, Pencil, Check, RotateCcw, RotateCw, Move, MoveHorizontal, MoveVertical, LucideIcon } from 'lucide-react-native';
+import { AxisLock } from './GestureHandler';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 interface WorkspaceControlsProps {
@@ -15,12 +16,21 @@ interface WorkspaceControlsProps {
   onHideControls: () => void;
   onReset: () => void;
   onRotate90: () => void;
+  axisLock: AxisLock;
+  onCycleAxisLock: () => void;
+  /** Numeric transform fields, shown under the top row in edit mode */
+  fields?: React.ReactNode;
   canUndo: boolean;
   canRedo: boolean;
 }
 
 const panel = 'bg-background-950 border border-outline-800 p-1 overflow-hidden';
 const iconButton = 'w-12 h-12';
+const axisLooks: Record<AxisLock, { icon: LucideIcon; label: string }> = {
+  free: { icon: Move, label: 'Libre' },
+  x: { icon: MoveHorizontal, label: 'Horiz.' },
+  y: { icon: MoveVertical, label: 'Vert.' },
+};
 
 // A white panel with one labelled button. Fades in and out.
 const Panel = ({ icon: Icon, label, onPress, color = ink.dark, className = '' }:
@@ -45,6 +55,9 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
   onHideControls,
   onReset,
   onRotate90,
+  axisLock,
+  onCycleAxisLock,
+  fields,
   canUndo,
   canRedo,
 }) => {
@@ -63,29 +76,33 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
         <Animated.View
           entering={FadeIn.duration(300)}
           exiting={FadeOut.duration(300)}
-          className="absolute top-2 left-5 right-5 flex-row justify-between items-center"
+          className="absolute top-2 left-5 right-5"
           pointerEvents="box-none"
         >
-          <Panel icon={ChevronLeft} label="Volver" onPress={onExit} />
+          <View className="flex-row justify-between items-center" pointerEvents="box-none">
+            <Panel icon={ChevronLeft} label="Volver" onPress={onExit} />
 
-          {isEditMode && (
-            <View className={`flex-row ${panel}`} pointerEvents="auto">
-              <Button variant="link" className={iconButton} onPress={onUndo} disabled={!canUndo}>
-                <Undo2 color={ink.dark} size={24} />
-              </Button>
-              <View className="w-[1px] h-8 bg-outline-800 self-center" />
-              <Button variant="link" className={iconButton} onPress={onRedo} disabled={!canRedo}>
-                <Redo2 color={ink.dark} size={24} />
+            {isEditMode && (
+              <View className={`flex-row ${panel}`} pointerEvents="auto">
+                <Button variant="link" className={iconButton} onPress={onUndo} disabled={!canUndo}>
+                  <Undo2 color={ink.dark} size={24} />
+                </Button>
+                <View className="w-[1px] h-8 bg-outline-800 self-center" />
+                <Button variant="link" className={iconButton} onPress={onRedo} disabled={!canRedo}>
+                  <Redo2 color={ink.dark} size={24} />
+                </Button>
+              </View>
+            )}
+
+            <View className={panel} pointerEvents="auto">
+              <Button onPress={onToggleEditMode} className="h-12 px-4">
+                {isEditMode ? <Check color="black" /> : <Pencil color="black" />}
+                <Text className="ml-2 font-bold uppercase tracking-wider text-black">{isEditMode ? 'Listo' : 'Editar'}</Text>
               </Button>
             </View>
-          )}
-
-          <View className={panel} pointerEvents="auto">
-            <Button onPress={onToggleEditMode} className="h-12 px-4">
-              {isEditMode ? <Check color="black" /> : <Pencil color="black" />}
-              <Text className="ml-2 font-bold uppercase tracking-wider text-black">{isEditMode ? 'Listo' : 'Editar'}</Text>
-            </Button>
           </View>
+          {/* Fields sit at the top: the keyboard never covers them */}
+          {isEditMode && <View className="mt-2" pointerEvents="box-none">{fields}</View>}
         </Animated.View>
       )}
 
@@ -94,6 +111,7 @@ export const WorkspaceControls: React.FC<WorkspaceControlsProps> = ({
           <Panel icon={EyeOff} label="Ocultar" onPress={onHideControls} color={ink.faint} />
         )}
         {isEditMode && <Panel icon={RotateCw} label="Girar 90°" onPress={onRotate90} />}
+        {isEditMode && <Panel {...axisLooks[axisLock]} onPress={onCycleAxisLock} className="ml-2" />}
         {isEditMode && <Panel icon={RotateCcw} label="Reset" onPress={onReset} className="ml-auto" />}
       </View>
     </View>

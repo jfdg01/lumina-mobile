@@ -9,9 +9,11 @@ interface ProjectCardProps {
   project: ProjectState;
   onSelect: (project: ProjectState) => void;
   onDelete: (id: string) => void;
+  /** Called when the rename starts, so the list can scroll the row above the keyboard */
+  onRename?: () => void;
 }
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onDelete }) => {
+export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onDelete, onRename }) => {
   const { renameProject } = useProjectStore();
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(project.name);
@@ -61,6 +63,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onD
               onChangeText={setEditedName}
               className="flex-1 border border-outline-300 rounded p-2 mr-2 text-typography-900 bg-background-50"
               autoFocus
+              disableFullscreenUI
               onSubmitEditing={handleSaveRename}
             />
             <Button variant="link" onPress={handleSaveRename} className="p-2">
@@ -80,7 +83,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onD
                 {new Date(project.lastModified).toLocaleDateString()} {new Date(project.lastModified).toLocaleTimeString()}
               </Text>
             </Pressable>
-            <Button variant="link" className="p-2" onPress={() => setIsEditing(true)}>
+            <Button variant="link" className="p-2" onPress={() => { setIsEditing(true); onRename?.(); }}>
               <Pencil color={ink.muted} />
             </Button>
           </View>

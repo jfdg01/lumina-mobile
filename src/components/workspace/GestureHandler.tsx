@@ -13,6 +13,8 @@ import Svg, { Circle } from 'react-native-svg';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
+export type AxisLock = 'free' | 'x' | 'y';
+
 interface GestureHandlerProps {
   imageUri: string;
   isEditMode: boolean;
@@ -23,6 +25,8 @@ interface GestureHandlerProps {
   rotation: SharedValue<number>;
   savedRotation: SharedValue<number>;
   baseRotation: number;
+  /** Limit the pan to one axis */
+  axisLock: AxisLock;
   onTransformChange: () => void;
   onLongPress: () => void;
   enableLongPress?: boolean;
@@ -38,6 +42,7 @@ export const GestureHandler: React.FC<GestureHandlerProps> = ({
   rotation,
   savedRotation,
   baseRotation,
+  axisLock,
   onTransformChange,
   onLongPress,
   enableLongPress = true,
@@ -57,8 +62,8 @@ export const GestureHandler: React.FC<GestureHandlerProps> = ({
   const pan = Gesture.Pan()
     .enabled(isEditMode)
     .onChange((event) => {
-      translationX.value += event.changeX;
-      translationY.value += event.changeY;
+      if (axisLock !== 'y') translationX.value += event.changeX;
+      if (axisLock !== 'x') translationY.value += event.changeY;
     })
     .onEnd(() => {
       runOnJS(onTransformChange)();
