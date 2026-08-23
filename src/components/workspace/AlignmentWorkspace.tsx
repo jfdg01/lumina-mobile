@@ -1,34 +1,30 @@
 import React, { useEffect } from 'react';
-import { useSharedValue, withSpring, runOnJS } from 'react-native-reanimated';
+import { useSharedValue, withSpring } from 'react-native-reanimated';
+import * as NavigationBar from 'expo-navigation-bar';
+import { StatusBar, Platform, Text, View } from 'react-native';
 
 import { TransformState } from '@/types/project';
-import { Box } from '@/components/ui/box';
-import { Text } from '@/components/ui/text';
-
 import { GestureHandler } from './GestureHandler';
 import { WorkspaceControls } from './WorkspaceControls';
-
-import * as NavigationBar from 'expo-navigation-bar';
-import { StatusBar, Platform } from 'react-native';
 
 interface AlignmentWorkspaceProps {
   imageUri: string | null;
   isEditMode: boolean;
   showSecondaryControls: boolean;
-  initialTransform?: TransformState;
-  onTransformChange?: (transform: TransformState) => void;
-  onLongPress?: () => void;
-  onUndo?: () => void;
-  onRedo?: () => void;
-  onExit?: () => void;
-  onToggleEditMode?: () => void;
-  onHideControls?: () => void;
-  canUndo?: boolean;
-  canRedo?: boolean;
+  initialTransform: TransformState;
+  onTransformChange: (transform: TransformState) => void;
+  onLongPress: () => void;
+  onUndo: () => void;
+  onRedo: () => void;
+  onExit: () => void;
+  onToggleEditMode: () => void;
+  onHideControls: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
 }
 
-export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({ 
-  imageUri, 
+export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
+  imageUri,
   isEditMode,
   showSecondaryControls,
   initialTransform,
@@ -39,88 +35,50 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
   onExit,
   onToggleEditMode,
   onHideControls,
-  canUndo = false,
-  canRedo = false,
+  canUndo,
+  canRedo,
 }) => {
   // Shared values for transformations
-  const translationX = useSharedValue(initialTransform?.translationX ?? 0);
-  const translationY = useSharedValue(initialTransform?.translationY ?? 0);
-  const scale = useSharedValue(initialTransform?.scale ?? 1);
-  const savedScale = useSharedValue(initialTransform?.scale ?? 1);
-  const rotation = useSharedValue(initialTransform?.rotation ?? 0);
-  const savedRotation = useSharedValue(initialTransform?.rotation ?? 0);
+  const translationX = useSharedValue(initialTransform.translationX);
+  const translationY = useSharedValue(initialTransform.translationY);
+  const scale = useSharedValue(initialTransform.scale);
+  const savedScale = useSharedValue(initialTransform.scale);
+  const rotation = useSharedValue(initialTransform.rotation);
+  const savedRotation = useSharedValue(initialTransform.rotation);
+  const baseRotation = initialTransform.baseRotation ?? 0;
 
-  // Manage System Bars Visibility
+  // Hide the system bars in view mode while the controls are hidden
   useEffect(() => {
-    const manageSystemBars = async () => {
-      // Hide if in view mode (not edit mode) AND controls are NOT shown
-      const shouldHide = !isEditMode && !showSecondaryControls;
-
-      if (Platform.OS === 'android') {
-        if (shouldHide) {
-          await NavigationBar.setVisibilityAsync('hidden');
-          await NavigationBar.setBehaviorAsync('overlay-swipe');
-          StatusBar.setHidden(true, 'fade');
-        } else {
-          await NavigationBar.setVisibilityAsync('visible');
-          StatusBar.setHidden(false, 'fade');
-        }
-      } else {
-        // iOS only has StatusBar to hide (navigation bar/home indicator is system controlled)
-        StatusBar.setHidden(shouldHide, 'fade');
-      }
-    };
-
-    manageSystemBars();
-
-    // Cleanup: ensure visible on unmount
+    const shouldHide = !isEditMode && !showSecondaryControls;
+    StatusBar.setHidden(shouldHide, 'fade');
+    if (Platform.OS === 'android') {
+      NavigationBar.setVisibilityAsync(shouldHide ? 'hidden' : 'visible');
+      if (shouldHide) NavigationBar.setBehaviorAsync('overlay-swipe');
+    }
     return () => {
-       if (Platform.OS === 'android') {
-        NavigationBar.setVisibilityAsync('visible');
-       }
-       StatusBar.setHidden(false);
+      StatusBar.setHidden(false);
+      if (Platform.OS === 'android') NavigationBar.setVisibilityAsync('visible');
     };
   }, [isEditMode, showSecondaryControls]);
 
-  // Update shared values when initialTransform changes (e.g., on load or undo/redo)
+  // Push the saved transform into the shared values (on load and on undo/redo)
   useEffect(() => {
-    if (initialTransform) {
-      translationX.value = initialTransform.translationX;
-      translationY.value = initialTransform.translationY;
-      scale.value = initialTransform.scale;
-      savedScale.value = initialTransform.scale;
-      rotation.value = initialTransform.rotation;
-      savedRotation.value = initialTransform.rotation;
-    }
+    translationX.value = initialTransform.translationX;
+    translationY.value = initialTransform.translationY;
+    scale.value = savedScale.value = initialTransform.scale;
+    rotation.value = savedRotation.value = initialTransform.rotation;
   }, [initialTransform]);
 
-  const baseRotation = initialTransform?.baseRotation ?? 0;
-
-  // Helper to notify parent of transform changes
-  const notifyTransformChange = () => {
-    if (onTransformChange) {
-      onTransformChange({
-        translationX: translationX.value,
-        translationY: translationY.value,
-        scale: scale.value,
-        rotation: rotation.value,
-        baseRotation,
-      });
-    }
-  };
-
-  // Cycle projector mounting orientation in 90° steps, saved per project
-  const handleRotate90 = () => {
-    if (onTransformChange) {
-      onTransformChange({
-        translationX: translationX.value,
-        translationY: translationY.value,
-        scale: scale.value,
-        rotation: rotation.value,
-        baseRotation: (baseRotation + 90) % 360,
-      });
-    }
-  };
+  // Report the live transform to the parent, with optional overrides
+  const emit = (patch: Partial<TransformState> = {}) =>
+    onTransformChange({
+      translationX: translationX.value,
+      translationY: translationY.value,
+      scale: scale.value,
+      rotation: rotation.value,
+      baseRotation,
+      ...patch,
+    });
 
   const handleReset = () => {
     translationX.value = withSpring(0);
@@ -129,29 +87,20 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
     savedScale.value = 1;
     rotation.value = withSpring(0);
     savedRotation.value = 0;
-
-    if (onTransformChange) {
-      // baseRotation survives reset: the projector didn't physically move
-      onTransformChange({
-        translationX: 0,
-        translationY: 0,
-        scale: 1,
-        rotation: 0,
-        baseRotation,
-      });
-    }
+    // baseRotation survives reset: the projector did not physically move
+    emit({ translationX: 0, translationY: 0, scale: 1, rotation: 0 });
   };
 
   if (!imageUri) {
     return (
-      <Box className="flex-1 justify-center items-center bg-background-950">
+      <View className="flex-1 justify-center items-center bg-background-950">
         <Text className="text-typography-500 text-lg font-medium">Ninguna imagen seleccionada</Text>
-      </Box>
+      </View>
     );
   }
 
   return (
-    <Box className="flex-1 w-full overflow-hidden bg-black">
+    <View className="flex-1 w-full overflow-hidden bg-black">
       <GestureHandler
         imageUri={imageUri}
         isEditMode={isEditMode}
@@ -162,7 +111,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
         rotation={rotation}
         savedRotation={savedRotation}
         baseRotation={baseRotation}
-        onTransformChange={notifyTransformChange}
+        onTransformChange={() => emit()}
         onLongPress={onLongPress}
         enableLongPress={!isEditMode && !showSecondaryControls}
       />
@@ -176,10 +125,10 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
         onToggleEditMode={onToggleEditMode}
         onHideControls={onHideControls}
         onReset={handleReset}
-        onRotate90={handleRotate90}
+        onRotate90={() => emit({ baseRotation: (baseRotation + 90) % 360 })}
         canUndo={canUndo}
         canRedo={canRedo}
       />
-    </Box>
+    </View>
   );
 };

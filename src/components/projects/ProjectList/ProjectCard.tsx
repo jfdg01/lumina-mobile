@@ -1,11 +1,7 @@
 import React, { useState } from 'react';
-import { Pressable, Platform, Alert, TextInput } from 'react-native';
+import { Pressable, Platform, Alert, TextInput, Image, Text, View } from 'react-native';
 import { ProjectState } from '@/types/project';
-import { Box } from '@/components/ui/box';
-import { Text } from '@/components/ui/text';
-import { VStack } from '@/components/ui/vstack';
-import { Button, ButtonText, ButtonIcon } from '@/components/ui/button';
-import { Image } from '@/components/ui/image';
+import { Button, ink } from '@/components/ui';
 import { Pencil, Check, X } from 'lucide-react-native';
 import { useProjectStore } from '@/store/useProjectStore';
 
@@ -29,11 +25,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onD
         `¿Estás seguro de que quieres eliminar "${project.name}"?`,
         [
           { text: "Cancelar", style: "cancel" },
-          { 
-            text: "Eliminar", 
-            onPress: () => onDelete(project.id),
-            style: "destructive"
-          }
+          { text: "Eliminar", onPress: () => onDelete(project.id), style: "destructive" },
         ]
       );
     }
@@ -52,19 +44,18 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onD
   };
 
   return (
-    <Box className="flex-row items-center bg-background-0 p-4 border-b border-outline-100">
+    <View className="flex-row items-center bg-background-0 p-4 border-b border-outline-100">
       <Pressable onPress={() => onSelect(project)}>
-        <Image 
-          source={{ uri: project.imageUri }} 
+        <Image
+          source={{ uri: project.imageUri }}
           alt={project.name}
-          size="sm" 
-          className="rounded-md mr-4 bg-background-100"
+          className="h-16 w-16 rounded-md mr-4 bg-background-100"
         />
       </Pressable>
 
-      <Box className="flex-1 justify-center">
+      <View className="flex-1 justify-center">
         {isEditing ? (
-          <Box className="flex-row items-center">
+          <View className="flex-row items-center">
             <TextInput
               value={editedName}
               onChangeText={setEditedName}
@@ -72,49 +63,35 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect, onD
               autoFocus
               onSubmitEditing={handleSaveRename}
             />
-            <Button action="primary" variant="link" size="sm" onPress={handleSaveRename} className="p-2">
-              <ButtonIcon as={Check} className="text-success-600" />
+            <Button variant="link" onPress={handleSaveRename} className="p-2">
+              <Check color={ink.ok} />
             </Button>
-            <Button action="secondary" variant="link" size="sm" onPress={handleCancelRename} className="p-2">
-              <ButtonIcon as={X} className="text-error-600" />
+            <Button variant="link" onPress={handleCancelRename} className="p-2">
+              <X color={ink.bad} />
             </Button>
-          </Box>
+          </View>
         ) : (
-          <Box className="flex-row items-center justify-between">
+          <View className="flex-row items-center justify-between">
             <Pressable className="flex-1" onPress={() => onSelect(project)}>
-              <VStack>
-                <Text className="font-semibold text-lg text-typography-900 mb-1" numberOfLines={1}>
-                  {project.name}
-                </Text>
-                <Text size="sm" className="text-typography-500 font-medium">
-                  {new Date(project.lastModified).toLocaleDateString()} {new Date(project.lastModified).toLocaleTimeString()}
-                </Text>
-              </VStack>
+              <Text className="font-semibold text-lg text-typography-900 mb-1" numberOfLines={1}>
+                {project.name}
+              </Text>
+              <Text className="text-sm text-typography-500 font-medium">
+                {new Date(project.lastModified).toLocaleDateString()} {new Date(project.lastModified).toLocaleTimeString()}
+              </Text>
             </Pressable>
-            <Button 
-              action="secondary" 
-              variant="link" 
-              size="sm" 
-              className="p-2"
-              onPress={() => setIsEditing(true)}
-            >
-              <ButtonIcon as={Pencil} className="text-typography-400" />
+            <Button variant="link" className="p-2" onPress={() => setIsEditing(true)}>
+              <Pencil color={ink.muted} />
             </Button>
-          </Box>
+          </View>
         )}
-      </Box>
-      
+      </View>
+
       {!isEditing && (
-        <Button 
-          action="negative" 
-          variant="link" 
-          size="sm" 
-          className="ml-2"
-          onPress={handleDelete}
-        >
-          <ButtonText className="text-error-600 font-bold uppercase text-xs tracking-wider">Eliminar</ButtonText>
+        <Button variant="link" className="ml-2" onPress={handleDelete}>
+          <Text className="text-error-600 font-bold uppercase text-xs tracking-wider">Eliminar</Text>
         </Button>
       )}
-    </Box>
+    </View>
   );
 };

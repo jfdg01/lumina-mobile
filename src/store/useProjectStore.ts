@@ -1,7 +1,6 @@
 import { create } from 'zustand';
-import { StorageService } from '@/services/StorageService';
+import * as StorageService from '@/services/StorageService';
 import { ProjectState, TransformState } from '@/types/project';
-import * as historyUtils from '@/utils/history';
 
 const DEFAULT_TRANSFORM: TransformState = {
   translationX: 0,
@@ -11,228 +10,153 @@ const DEFAULT_TRANSFORM: TransformState = {
   baseRotation: 0,
 };
 
+const MAX_HISTORY = 20;
+
+type Stack = 'undoStack' | 'redoStack';
+
 interface ProjectStore {
-  // State
   projects: ProjectState[];
   currentProject: ProjectState | null;
   undoStack: TransformState[];
   redoStack: TransformState[];
   isLoading: boolean;
 
-  // Actions
   loadProjects: () => Promise<void>;
   createProject: (imageUri: string) => Promise<void>;
   selectProject: (project: ProjectState) => Promise<void>;
   deleteProject: (projectId: string) => Promise<void>;
   renameProject: (projectId: string, newName: string) => Promise<void>;
   exitProject: () => Promise<void>;
-  
-  // Transform & History
+
   updateTransform: (transform: TransformState) => void;
   undo: () => void;
   redo: () => void;
-  
-  // Internal helper to sync with storage
+
   syncCurrentProject: () => Promise<void>;
 }
-
-const generateProjectId = (): string => {
-  return `project_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-};
 
 const fetchSortedProjects = async (): Promise<ProjectState[]> => {
   const collection = await StorageService.getProjects();
   return Object.values(collection).sort((a, b) => b.lastModified - a.lastModified);
 };
 
-const createNewProject = (imageUri: string): ProjectState => {
-  const id = generateProjectId();
-  return {
-    id,
-    name: `Proyecto ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`,
-    imageUri,
-    transform: { ...DEFAULT_TRANSFORM },
-    lastModified: Date.now(),
+export const useProjectStore = create<ProjectStore>((set, get) => {
+  // Pop the last transform off one stack, push the current one onto the other
+  const shift = (from: Stack, to: Stack) => {
+    const state = get();
+    const { currentProject } = state;
+    const transform = state[from][state[from].length - 1];
+    if (!currentProject || !transform) return;
+    set({
+      currentProject: { ...currentProject, transform, lastModified: Date.now() },
+      [from]: state[from].slice(0, -1),
+      [to]: [...state[to], currentProject.transform],
+    });
+    get().syncCurrentProject();
   };
-};
 
-export const useProjectStore = create<ProjectStore>((set, get) => ({
-  projects: [],
-  currentProject: null,
-  undoStack: [],
-  redoStack: [],
-  isLoading: false,
+  return {
+    projects: [],
+    currentProject: null,
+    undoStack: [],
+    redoStack: [],
+    isLoading: false,
 
-  loadProjects: async () => {
-    set({ isLoading: true });
-    try {
-      const collection = await StorageService.getProjects();
-      const projects = Object.values(collection).sort((a, b) => b.lastModified - a.lastModified);
-
-      const currentId = await StorageService.getCurrentProjectId();
-      const currentProject = (currentId && collection[currentId]) ? collection[currentId] : null;
-
-      set({ projects, currentProject, isLoading: false });
-    } catch (error) {
-      console.error('Failed to load projects:', error);
-      set({ isLoading: false });
-    }
-  },
-
-  createProject: async (imageUri: string) => {
-    try {
-      const newProject = createNewProject(imageUri);
-      
-      await StorageService.saveProject(newProject);
-      await StorageService.setCurrentProjectId(newProject.id);
-
-      const projects = await fetchSortedProjects();
-
-      set({
-        projects, 
-        currentProject: newProject,
-        undoStack: [],
-        redoStack: []
-      });
-    } catch (error) {
-      console.error('Failed to create project:', error);
-    }
-  },
-
-  selectProject: async (project: ProjectState) => {
-    try {
-      await StorageService.setCurrentProjectId(project.id);
-      
-      set({ 
-        currentProject: project,
-        undoStack: [],
-        redoStack: []
-      });
-    } catch (error) {
-      console.error('Failed to select project:', error);
-    }
-  },
-
-  deleteProject: async (projectId: string) => {
-    try {
-      const { currentProject } = get();
-      
-      await StorageService.deleteProject(projectId);
-
-      if (currentProject && currentProject.id === projectId) {
-        set({ currentProject: null });
+    loadProjects: async () => {
+      set({ isLoading: true });
+      try {
+        const projects = await fetchSortedProjects();
+        const currentId = await StorageService.getCurrentProjectId();
+        const currentProject = projects.find((p) => p.id === currentId) ?? null;
+        set({ projects, currentProject, isLoading: false });
+      } catch (error) {
+        console.error('Failed to load projects:', error);
+        set({ isLoading: false });
       }
+    },
 
-      set({ projects: await fetchSortedProjects() });
-    } catch (error) {
-      console.error('Failed to delete project:', error);
-    }
-  },
+    createProject: async (imageUri: string) => {
+      try {
+        const now = new Date();
+        const newProject: ProjectState = {
+          id: `project_${now.getTime()}_${Math.random().toString(36).substring(2, 9)}`,
+          name: `Proyecto ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`,
+          imageUri,
+          transform: { ...DEFAULT_TRANSFORM },
+          lastModified: now.getTime(),
+        };
+        await StorageService.saveProject(newProject);
+        await StorageService.setCurrentProjectId(newProject.id);
+        set({ projects: await fetchSortedProjects(), currentProject: newProject, undoStack: [], redoStack: [] });
+      } catch (error) {
+        console.error('Failed to create project:', error);
+      }
+    },
 
-  renameProject: async (projectId: string, newName: string) => {
-    try {
-      const collection = await StorageService.getProjects();
-      const project = collection[projectId];
-      
-      if (project) {
+    selectProject: async (project: ProjectState) => {
+      try {
+        await StorageService.setCurrentProjectId(project.id);
+        set({ currentProject: project, undoStack: [], redoStack: [] });
+      } catch (error) {
+        console.error('Failed to select project:', error);
+      }
+    },
+
+    deleteProject: async (projectId: string) => {
+      try {
+        await StorageService.deleteProject(projectId);
+        if (get().currentProject?.id === projectId) set({ currentProject: null });
+        set({ projects: await fetchSortedProjects() });
+      } catch (error) {
+        console.error('Failed to delete project:', error);
+      }
+    },
+
+    renameProject: async (projectId: string, newName: string) => {
+      try {
+        const project = (await StorageService.getProjects())[projectId];
+        if (!project) return;
         const updatedProject = { ...project, name: newName, lastModified: Date.now() };
         await StorageService.saveProject(updatedProject);
-        
-        const { currentProject } = get();
-        if (currentProject && currentProject.id === projectId) {
-          set({ currentProject: updatedProject });
-        }
-
+        if (get().currentProject?.id === projectId) set({ currentProject: updatedProject });
         set({ projects: await fetchSortedProjects() });
+      } catch (error) {
+        console.error('Failed to rename project:', error);
       }
-    } catch (error) {
-      console.error('Failed to rename project:', error);
-    }
-  },
+    },
 
-  exitProject: async () => {
-    try {
-      await StorageService.setCurrentProjectId(null);
-      set({ currentProject: null });
-    } catch (error) {
-      console.error('Failed to exit project:', error);
-    }
-  },
+    exitProject: async () => {
+      try {
+        await StorageService.setCurrentProjectId(null);
+        set({ currentProject: null });
+      } catch (error) {
+        console.error('Failed to exit project:', error);
+      }
+    },
 
-  updateTransform: (transform: TransformState) => {
-    const { currentProject, undoStack } = get();
-    if (!currentProject) return;
+    updateTransform: (transform: TransformState) => {
+      const { currentProject, undoStack } = get();
+      if (!currentProject) return;
+      set({
+        currentProject: { ...currentProject, transform, lastModified: Date.now() },
+        undoStack: [...undoStack, currentProject.transform].slice(-MAX_HISTORY),
+        redoStack: [],
+      });
+      get().syncCurrentProject();
+    },
 
-    const newUndoStack = historyUtils.pushToHistory(undoStack, currentProject.transform);
+    undo: () => shift('undoStack', 'redoStack'),
+    redo: () => shift('redoStack', 'undoStack'),
 
-    const updatedProject = {
-      ...currentProject,
-      transform,
-      lastModified: Date.now(),
-    };
-
-    set({
-      currentProject: updatedProject,
-      undoStack: newUndoStack,
-      redoStack: []
-    });
-
-    get().syncCurrentProject();
-  },
-
-  undo: () => {
-    const { currentProject, undoStack, redoStack } = get();
-    if (!currentProject) return;
-
-    const result = historyUtils.undo(undoStack, currentProject.transform);
-    if (!result) return;
-
-    const updatedProject = {
-      ...currentProject,
-      transform: result.previous,
-      lastModified: Date.now(),
-    };
-
-    set({
-      currentProject: updatedProject,
-      undoStack: result.newHistory,
-      redoStack: [...redoStack, result.redoItem]
-    });
-
-    get().syncCurrentProject();
-  },
-
-  redo: () => {
-    const { currentProject, undoStack, redoStack } = get();
-    if (!currentProject) return;
-
-    const result = historyUtils.redo(redoStack, currentProject.transform);
-    if (!result) return;
-
-    const updatedProject = {
-      ...currentProject,
-      transform: result.next,
-      lastModified: Date.now(),
-    };
-
-    set({
-      currentProject: updatedProject,
-      undoStack: [...undoStack, result.undoItem],
-      redoStack: result.newRedoStack
-    });
-
-    get().syncCurrentProject();
-  },
-
-  syncCurrentProject: async () => {
-    const { currentProject } = get();
-    if (currentProject) {
+    syncCurrentProject: async () => {
+      const { currentProject } = get();
+      if (!currentProject) return;
       try {
         await StorageService.saveProject(currentProject);
         set({ projects: await fetchSortedProjects() });
       } catch (error) {
         console.error('Failed to sync project:', error);
       }
-    }
-  }
-}));
+    },
+  };
+});

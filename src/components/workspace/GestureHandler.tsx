@@ -12,7 +12,6 @@ import Animated, {
 import Svg, { Circle } from 'react-native-svg';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-import { Box } from '@/components/ui/box';
 
 interface GestureHandlerProps {
   imageUri: string;
@@ -25,7 +24,7 @@ interface GestureHandlerProps {
   savedRotation: SharedValue<number>;
   baseRotation: number;
   onTransformChange: () => void;
-  onLongPress?: () => void;
+  onLongPress: () => void;
   enableLongPress?: boolean;
 }
 
@@ -96,10 +95,7 @@ export const GestureHandler: React.FC<GestureHandlerProps> = ({
       progress.value = withTiming(1, { duration: 2000 });
     })
     .onStart(() => {
-      // Trigger action
-      if (onLongPress) {
-        runOnJS(onLongPress)();
-      }
+      runOnJS(onLongPress)();
       // Reset after successful trigger
       isPressing.value = false;
       progress.value = 0;

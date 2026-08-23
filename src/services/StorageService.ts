@@ -1,65 +1,29 @@
-import { ProjectState, TransformState } from '@/types/project';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ProjectState } from '@/types/project';
 
-const PROJECTS_COLLECTION_KEY = '@projectalign/projects_collection';
-const CURRENT_PROJECT_ID_KEY = '@projectalign/current_project_id';
+const PROJECTS_KEY = '@projectalign/projects_collection';
+const CURRENT_KEY = '@projectalign/current_project_id';
 
-export class StorageService {
-  static async getProjects(): Promise<Record<string, ProjectState>> {
-    try {
-      const projectsJson = await AsyncStorage.getItem(PROJECTS_COLLECTION_KEY);
-      return projectsJson ? JSON.parse(projectsJson) : {};
-    } catch (error) {
-      console.error('Failed to get projects from storage:', error);
-      return {};
-    }
-  }
+export const getProjects = async (): Promise<Record<string, ProjectState>> =>
+  JSON.parse((await AsyncStorage.getItem(PROJECTS_KEY)) ?? '{}');
 
-  static async saveProjects(projects: Record<string, ProjectState>): Promise<void> {
-    try {
-      await AsyncStorage.setItem(PROJECTS_COLLECTION_KEY, JSON.stringify(projects));
-    } catch (error) {
-      console.error('Failed to save projects to storage:', error);
-    }
-  }
+const saveProjects = (projects: Record<string, ProjectState>) =>
+  AsyncStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
 
-  static async getCurrentProjectId(): Promise<string | null> {
-    try {
-      return await AsyncStorage.getItem(CURRENT_PROJECT_ID_KEY);
-    } catch (error) {
-      console.error('Failed to get current project ID from storage:', error);
-      return null;
-    }
-  }
+export const getCurrentProjectId = () => AsyncStorage.getItem(CURRENT_KEY);
 
-  static async setCurrentProjectId(id: string | null): Promise<void> {
-    try {
-      if (id === null) {
-        await AsyncStorage.removeItem(CURRENT_PROJECT_ID_KEY);
-      } else {
-        await AsyncStorage.setItem(CURRENT_PROJECT_ID_KEY, id);
-      }
-    } catch (error) {
-      console.error('Failed to set current project ID in storage:', error);
-    }
-  }
+export const setCurrentProjectId = (id: string | null) =>
+  id === null ? AsyncStorage.removeItem(CURRENT_KEY) : AsyncStorage.setItem(CURRENT_KEY, id);
 
-  static async saveProject(project: ProjectState): Promise<void> {
-    const projects = await this.getProjects();
-    projects[project.id] = project;
-    await this.saveProjects(projects);
-  }
+export const saveProject = async (project: ProjectState) => {
+  const projects = await getProjects();
+  projects[project.id] = project;
+  await saveProjects(projects);
+};
 
-  static async deleteProject(id: string): Promise<void> {
-    const projects = await this.getProjects();
-    if (projects[id]) {
-      delete projects[id];
-      await this.saveProjects(projects);
-    }
-    
-    const currentId = await this.getCurrentProjectId();
-    if (currentId === id) {
-      await this.setCurrentProjectId(null);
-    }
-  }
-}
+export const deleteProject = async (id: string) => {
+  const projects = await getProjects();
+  delete projects[id];
+  await saveProjects(projects);
+  if ((await getCurrentProjectId()) === id) await setCurrentProjectId(null);
+};

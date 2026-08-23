@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
-import { StatusBar } from 'react-native';
+import { Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
@@ -8,11 +8,7 @@ import { AlignmentWorkspace } from './components/workspace/AlignmentWorkspace';
 import { useProjectStore } from './store/useProjectStore';
 import { ProjectList } from './components/projects/ProjectList';
 
-import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
-import { Box } from '@/components/ui/box';
-import { VStack } from '@/components/ui/vstack';
-import { Text } from '@/components/ui/text';
-import { Button, ButtonText } from '@/components/ui/button';
+import { Button } from '@/components/ui';
 import '@/global.css';
 
 export default function App() {
@@ -75,9 +71,9 @@ export default function App() {
 
   if (isLoading) {
     return (
-      <Box className="flex-1 justify-center items-center bg-background-0">
+      <View className="flex-1 justify-center items-center bg-background-0">
         <Text className="text-primary-500 text-lg font-semibold tracking-wider">Iniciando...</Text>
-      </Box>
+      </View>
     );
   }
 
@@ -107,17 +103,12 @@ export default function App() {
 
     if (isCreatingNew) {
       return (
-        <VStack className="flex-1 bg-background-0">
+        <View className="flex-1 bg-background-0">
           <ImageImporter onImageImported={handleImageImported} />
-          <Button 
-            action="secondary" 
-            variant="link" 
-            className="mb-10 self-center p-2"
-            onPress={() => setIsCreatingNew(false)}
-          >
-            <ButtonText className="text-typography-500 font-semibold uppercase tracking-wider">Cancelar</ButtonText>
+          <Button variant="link" className="mb-10 self-center p-2" onPress={() => setIsCreatingNew(false)}>
+            <Text className="text-typography-500 font-semibold uppercase tracking-wider">Cancelar</Text>
           </Button>
-        </VStack>
+        </View>
       );
     }
 
@@ -130,15 +121,12 @@ export default function App() {
   };
 
   return (
-    <GluestackUIProvider mode="dark">
-      <SafeAreaProvider>
-        <GestureHandlerRootView className="flex-1">
-          <Box className={`flex-1 ${!isEditMode ? 'bg-black' : 'bg-background-0'}`}>
-            <StatusBar hidden={!isEditMode} barStyle="light-content" />
-            {renderContent()}
-          </Box>
-        </GestureHandlerRootView>
-      </SafeAreaProvider>
-    </GluestackUIProvider>
+    <SafeAreaProvider>
+      <GestureHandlerRootView className="flex-1">
+        <View className={`flex-1 ${!isEditMode ? 'bg-black' : 'bg-background-0'}`}>
+          {renderContent()}
+        </View>
+      </GestureHandlerRootView>
+    </SafeAreaProvider>
   );
 }
