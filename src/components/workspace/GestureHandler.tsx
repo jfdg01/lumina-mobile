@@ -59,8 +59,10 @@ export const GestureHandler: React.FC<GestureHandlerProps> = ({
   const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
   // Gesture definitions
+  // One finger moves. Two fingers zoom and turn, and never move, so the zoom is reliable.
   const pan = Gesture.Pan()
     .enabled(isEditMode)
+    .maxPointers(1)
     .onChange((event) => {
       if (axisLock !== 'y') translationX.value += event.changeX;
       if (axisLock !== 'x') translationY.value += event.changeY;

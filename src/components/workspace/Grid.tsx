@@ -6,19 +6,13 @@ const STEP = 50; // cell size in dp at zoom 100%. Divides the 300 dp image box, 
 const HALF = STEP / 2;
 const LINE = 'rgba(255,255,255,0.3)';
 
-interface GridProps {
-  translationX: SharedValue<number>;
-  translationY: SharedValue<number>;
-  scale: SharedValue<number>;
-  rotation: SharedValue<number>;
-}
-
-// The image's own grid: it pans, scales and rotates with the image. The cell grows with the zoom.
-// Lines at the cell midpoints fade in as the cell grows; at 2× they become the cells, so the split shows no jump.
-export const Grid: React.FC<GridProps> = ({ translationX, translationY, scale, rotation }) => {
+// Level grid, fixed to the screen: the projector's own frame. The image moves and turns against it.
+// The cell grows with the zoom. Lines at the cell midpoints fade in as the cell grows; at 2× they become the cells,
+// so the split shows no jump.
+export const Grid: React.FC<{ scale: SharedValue<number> }> = ({ scale }) => {
   const [box, setBox] = useState({ width: 0, height: 0 });
-  // Even cell count: the centre of the square is a full line. Covers the screen at any angle and pan (see ux/uy).
-  const cells = 2 * Math.ceil((Math.hypot(box.width, box.height) / STEP + 2) / 2);
+  // Even cell count: the centre of the square is a full line. Covers the screen at any zoom.
+  const cells = 2 * Math.ceil((Math.max(box.width, box.height) / STEP + 2) / 2);
   const size = cells * STEP;
 
   // Zoom factor folded into [1, 2)
@@ -27,15 +21,7 @@ export const Grid: React.FC<GridProps> = ({ translationX, translationY, scale, r
     return s / Math.pow(2, Math.floor(Math.log2(s)));
   });
 
-  const square = useAnimatedStyle(() => {
-    const f = level.value;
-    const c = Math.cos(rotation.value);
-    const s = Math.sin(rotation.value);
-    // The pan, expressed in the grid's own frame and reduced to one cell. The grid repeats, so the rest is invisible.
-    const ux = ((translationX.value * c + translationY.value * s) / f) % STEP;
-    const uy = ((-translationX.value * s + translationY.value * c) / f) % STEP;
-    return { transform: [{ rotate: `${rotation.value}rad` }, { scale: f }, { translateX: ux }, { translateY: uy }] };
-  });
+  const square = useAnimatedStyle(() => ({ transform: [{ scale: level.value }] }));
   // Counter the scale, so a line stays 1 dp on screen
   const vertical = useAnimatedStyle(() => ({ width: 1 / level.value }));
   const horizontal = useAnimatedStyle(() => ({ height: 1 / level.value }));

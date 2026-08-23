@@ -105,7 +105,7 @@ export const AlignmentWorkspace: React.FC<AlignmentWorkspaceProps> = ({
   return (
     <View className="flex-1 w-full overflow-hidden bg-black">
       {/* Edit mode only: a grid on the wall would get painted */}
-      {isEditMode && <Grid translationX={translationX} translationY={translationY} scale={scale} rotation={rotation} />}
+      {isEditMode && <Grid scale={scale} />}
       <GestureHandler
         imageUri={imageUri}
         isEditMode={isEditMode}
